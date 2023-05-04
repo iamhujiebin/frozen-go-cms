@@ -8,6 +8,7 @@
 
 1. go mod init frozen-go-cms
 2. go get 报错的
+3. 暂时还是先依赖hilo-common
 
 # 项目架构
 

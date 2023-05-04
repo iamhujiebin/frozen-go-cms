@@ -10,7 +10,8 @@ const (
 )
 
 func main() {
-	//cron.Init()                     // 开启定时任务
+	// 静态文件服务器
+
 	r := route.InitRouter()         // 注册路由
 	r.Run(fmt.Sprintf(":%d", PORT)) // 启动服务
 }
