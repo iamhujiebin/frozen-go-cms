@@ -42,8 +42,9 @@ const (
 // 文件服务器
 func file() {
 	var router = gin.Default()
+	router.Use(route.Cors())
 	router.StaticFS(UPLOAD_PATH, http.Dir(UPLOAD_PATH))
-	group := router.Group("file")
+	group := router.Group("file") // 跨域
 	group.POST("/upload", uploadFunc)
 	_ = router.Run(fmt.Sprintf(":%d", FILE_PORT))
 }

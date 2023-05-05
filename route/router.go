@@ -12,7 +12,7 @@ import (
 
 func InitRouter() *gin.Engine {
 	var r = gin.Default()
-
+	r.Use(Cors()) // 跨域
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	noLogin := r.Group("")
