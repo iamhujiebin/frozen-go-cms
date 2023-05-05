@@ -98,7 +98,7 @@ func main() {
 		}
 		images, err := json.Marshal(v.Cover.Images)
 		t, _ := time.Parse("2006-01-02 15:04:05", v.PubDate)
-		if err := article_m.AddArticle(model, article_m.Article{
+		if _, err := article_m.AddArticle(model, article_m.Article{
 			Entity: mysql.Entity{
 				ID: v.Id,
 			},

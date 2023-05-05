@@ -3,6 +3,7 @@ package resp
 import (
 	"encoding/json"
 	"fmt"
+	"frozen-go-cms/myerr"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -50,6 +51,18 @@ func ResponseWaring(c *gin.Context, err error) {
 		Code:             300,
 		Message:          "warn",
 		OperationMessage: msg,
+		Data:             nil,
+	}
+	printResponseBody(c, &response)
+	c.JSON(http.StatusOK, response)
+}
+
+func ResponseBusiness(c *gin.Context, businessError *myerr.BusinessError) {
+	response := Response{
+		Code:             businessError.GetCode(),
+		Message:          businessError.GetMsg(),
+		MessageData:      businessError.GetData(),
+		OperationMessage: businessError.GetMsg(),
 		Data:             nil,
 	}
 	printResponseBody(c, &response)

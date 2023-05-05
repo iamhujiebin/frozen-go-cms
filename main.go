@@ -49,6 +49,7 @@ func file() {
 }
 
 func uploadFunc(c *gin.Context) {
+	prefix := "http://127.0.0.1:" + fmt.Sprintf("%d/", FILE_PORT)
 	_, header, err := c.Request.FormFile("file")
 	code, message := 0, "success"
 	if err != nil {
@@ -66,6 +67,7 @@ func uploadFunc(c *gin.Context) {
 		"data": map[string]interface{}{
 			"filepath": filepath,
 			"filename": filename,
+			"url":      prefix + filepath,
 		},
 	})
 }

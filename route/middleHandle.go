@@ -1,8 +1,15 @@
 package route
 
 import (
+	"frozen-go-cms/myerr/bizerr"
+	"frozen-go-cms/req/jwt"
 	"frozen-go-cms/resp"
+	"git.hilo.cn/hilo-common/mycontext"
+	"git.hilo.cn/hilo-common/mylogrus"
+	"git.hilo.cn/hilo-common/resource/config"
 	"github.com/gin-gonic/gin"
+	"strings"
+	"time"
 )
 
 /**
@@ -24,5 +31,62 @@ func ExceptionHandle(c *gin.Context) {
 
 // LoggerHandle 日志Handle
 func LoggerHandle(c *gin.Context) {
+	c.Next()
+}
+
+//jwt解密
+func JWTApiHandle(c *gin.Context) {
+	logger := mylogrus.MyLog.WithField("URL", c.Request.URL).WithField("METHOD", c.Request.Method)
+	token := c.GetHeader("Authorization")
+	if token == "" {
+		logger.Warnf("token err is empty! %v", c.Request.Header)
+		resp.ResponseBusiness(c, bizerr.TokenInvalid)
+		c.Abort()
+		return
+	}
+	if len(strings.Split(token, " ")) == 2 {
+		token = strings.Split(token, " ")[1]
+	} else {
+		logger.Warnf("token len is wrong! %v", c.Request.Header)
+		resp.ResponseBusiness(c, bizerr.TokenInvalid)
+		c.Abort()
+		return
+	}
+	claims, err := jwt.ParseToken(token)
+	if err != nil {
+		logger.Warnf("token parsed err:%v", err)
+		resp.ResponseBusiness(c, bizerr.TokenInvalid)
+		c.Abort()
+		return
+	}
+	logger = logger.WithField("userId", claims.UserId)
+	if time.Now().Unix() > claims.ExpiresAt {
+		logger.Warnf("token expire err, now: %d, expiresAt %d", time.Now().Unix(), claims.ExpiresAt)
+		resp.ResponseBusiness(c, bizerr.TokenInvalid)
+		c.Abort()
+		return
+	}
+	if claims.Issuer != config.GetConfigJWT().ISSUER_API {
+		logger.Warnf("token err issuer:%s, configIssuer %s", claims.Issuer, config.GetConfigJWT().ISSUER_API)
+		resp.ResponseBusiness(c, bizerr.TokenInvalid)
+		c.Abort()
+		return
+	}
+	var newToken = token
+	// token 连续7天没玩,第八天回来后给新token(线上是30天过期)
+	if claims.ExpiresAt-time.Now().Unix() < 86400*7 {
+		logger.Infof("token nearly expire err, now:%d,expiresAt:%d", time.Now().Unix(), claims.ExpiresAt)
+		newToken, err = jwt.GenerateToken(claims.UserId, claims.Mobile, config.GetConfigJWT().ISSUER_API)
+		if err != nil {
+			logger.Warnf("token generation failed, err:%v", err)
+			resp.ResponseBusiness(c, bizerr.TokenInvalid)
+			c.Abort()
+			return
+		}
+	}
+
+	c.Set(mycontext.USERID, claims.UserId)
+
+	c.Writer.Header().Add("token", newToken)
 	c.Next()
 }
