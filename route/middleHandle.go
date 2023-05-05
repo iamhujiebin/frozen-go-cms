@@ -1,7 +1,6 @@
 package route
 
 import (
-	"frozen-go-cms/myerr/bizerr"
 	"frozen-go-cms/req/jwt"
 	"frozen-go-cms/resp"
 	"git.hilo.cn/hilo-common/mycontext"
@@ -41,36 +40,31 @@ func JWTApiHandle(c *gin.Context) {
 	token := c.GetHeader("Authorization")
 	if token == "" {
 		logger.Warnf("token err is empty! %v", c.Request.Header)
-		resp.ResponseBusiness(c, bizerr.TokenInvalid)
-		c.Abort()
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 	if len(strings.Split(token, " ")) == 2 {
 		token = strings.Split(token, " ")[1]
 	} else {
 		logger.Warnf("token len is wrong! %v", c.Request.Header)
-		resp.ResponseBusiness(c, bizerr.TokenInvalid)
-		c.Abort()
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 	claims, err := jwt.ParseToken(token)
 	if err != nil {
 		logger.Warnf("token parsed err:%v", err)
-		resp.ResponseBusiness(c, bizerr.TokenInvalid)
 		c.Abort()
 		return
 	}
 	logger = logger.WithField("userId", claims.UserId)
 	if time.Now().Unix() > claims.ExpiresAt {
 		logger.Warnf("token expire err, now: %d, expiresAt %d", time.Now().Unix(), claims.ExpiresAt)
-		resp.ResponseBusiness(c, bizerr.TokenInvalid)
-		c.Abort()
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 	if claims.Issuer != config.GetConfigJWT().ISSUER_API {
 		logger.Warnf("token err issuer:%s, configIssuer %s", claims.Issuer, config.GetConfigJWT().ISSUER_API)
-		resp.ResponseBusiness(c, bizerr.TokenInvalid)
-		c.Abort()
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 	var newToken = token
@@ -80,8 +74,7 @@ func JWTApiHandle(c *gin.Context) {
 		newToken, err = jwt.GenerateToken(claims.UserId, claims.Mobile, config.GetConfigJWT().ISSUER_API)
 		if err != nil {
 			logger.Warnf("token generation failed, err:%v", err)
-			resp.ResponseBusiness(c, bizerr.TokenInvalid)
-			c.Abort()
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 	}
