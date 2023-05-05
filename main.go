@@ -19,6 +19,8 @@ const (
 	PORT        = 7000
 	STATIC_PORT = 7001
 	FILE_PORT   = 7002
+	DOMAIN      = "http://47.244.34.27"
+	UPLOAD_PATH = "uploads/file"
 )
 
 func main() {
@@ -35,10 +37,6 @@ func static() {
 	_ = router.Run(fmt.Sprintf(":%d", STATIC_PORT))
 }
 
-const (
-	UPLOAD_PATH = "uploads/file"
-)
-
 // 文件服务器
 func file() {
 	var router = gin.Default()
@@ -50,7 +48,7 @@ func file() {
 }
 
 func uploadFunc(c *gin.Context) {
-	prefix := "http://127.0.0.1:" + fmt.Sprintf("%d/", FILE_PORT)
+	prefix := DOMAIN + fmt.Sprintf("%d/", FILE_PORT)
 	_, header, err := c.Request.FormFile("file")
 	code, message := 0, "success"
 	if err != nil {
