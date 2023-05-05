@@ -48,7 +48,7 @@ func file() {
 }
 
 func uploadFunc(c *gin.Context) {
-	prefix := DOMAIN + fmt.Sprintf("%d/", FILE_PORT)
+	prefix := DOMAIN + fmt.Sprintf(":%d/", FILE_PORT)
 	_, header, err := c.Request.FormFile("file")
 	code, message := 0, "success"
 	if err != nil {
