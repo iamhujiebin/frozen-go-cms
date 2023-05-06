@@ -4,6 +4,7 @@ import (
 	_ "frozen-go-cms/docs"
 	"frozen-go-cms/route/article_r"
 	"frozen-go-cms/route/channel_r"
+	"frozen-go-cms/route/todo_r"
 	"frozen-go-cms/route/user_r"
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -35,6 +36,14 @@ func InitRouter() *gin.Engine {
 		articles.GET(":id", wrapper(article_r.GetArticle))
 		articles.DELETE(":id", wrapper(article_r.DeleteArticle))
 		articles.GET("", wrapper(article_r.PageArticle))
+	}
+	todo := v1.Group("mp/todolist")
+	todo.Use(JWTApiHandle)
+	{
+		todo.GET("", wrapper(todo_r.TodoList))
+		todo.POST("", wrapper(todo_r.AddTodoList))
+		todo.PUT(":id", wrapper(todo_r.MarkTodoList))
+		todo.DELETE(":id", wrapper(todo_r.DelTodoList))
 	}
 	return r
 }
