@@ -25,6 +25,10 @@ func MarkTodo(model *domain.Model, id mysql.ID, isDone bool) error {
 	return model.DB().Model(Todo{}).Where("id = ?", id).Update("is_done", isDone).Error
 }
 
+func MarkTodoAll(model *domain.Model, userId mysql.ID, isDone bool) error {
+	return model.DB().Model(Todo{}).Where("user_id = ?", userId).Update("is_done", isDone).Error
+}
+
 func GetTodos(model *domain.Model, userId mysql.ID) []Todo {
 	var todos []Todo
 	if err := model.DB().Model(Todo{}).Where("user_id = ?", userId).Order("id DESC").Find(&todos).Error; err != nil {

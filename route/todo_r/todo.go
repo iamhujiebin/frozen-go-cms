@@ -102,6 +102,34 @@ func MarkTodoList(c *gin.Context) (*mycontext.MyContext, error) {
 	return myCtx, nil
 }
 
+type MarkAllTodoListReq struct {
+	IsDone bool `json:"isDone"`
+}
+
+// @Tags Todo模块
+// @Summary 标记全部
+// @Param Authorization header string true "token"
+// @Param MarkAllTodoListReq body MarkAllTodoListReq true "请求体"
+// @Success 200
+// @Router /v1_0/mp/todolist/markAll [post]
+func MarkAllTodoList(c *gin.Context) (*mycontext.MyContext, error) {
+	myCtx := mycontext.CreateMyContext(c.Keys)
+	var param MarkAllTodoListReq
+	if err := c.ShouldBind(&param); err != nil {
+		return myCtx, err
+	}
+	userId, err := req.GetUserId(c)
+	if err != nil {
+		return myCtx, err
+	}
+	model := domain.CreateModelContext(myCtx)
+	if err := todo_m.MarkTodoAll(model, userId, param.IsDone); err != nil {
+		return myCtx, err
+	}
+	resp.ResponseOk(c, "")
+	return myCtx, nil
+}
+
 // @Tags Todo模块
 // @Summary 删除
 // @Param id path integer true "id"

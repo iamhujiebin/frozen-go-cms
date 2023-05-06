@@ -44,6 +44,7 @@ func InitRouter() *gin.Engine {
 		todo.POST("", wrapper(todo_r.AddTodoList))
 		todo.PUT(":id", wrapper(todo_r.MarkTodoList))
 		todo.DELETE(":id", wrapper(todo_r.DelTodoList))
+		todo.POST("markAll", wrapper(todo_r.MarkAllTodoList))
 	}
 	return r
 }
