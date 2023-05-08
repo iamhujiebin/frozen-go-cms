@@ -4,6 +4,7 @@ import (
 	_ "frozen-go-cms/docs"
 	"frozen-go-cms/route/article_r"
 	"frozen-go-cms/route/channel_r"
+	"frozen-go-cms/route/chatgpt_r"
 	"frozen-go-cms/route/todo_r"
 	"frozen-go-cms/route/user_r"
 	"github.com/gin-gonic/gin"
@@ -45,6 +46,10 @@ func InitRouter() *gin.Engine {
 		todo.PUT(":id", wrapper(todo_r.MarkTodoList))
 		todo.DELETE(":id", wrapper(todo_r.DelTodoList))
 		todo.POST("markAll", wrapper(todo_r.MarkAllTodoList))
+	}
+	chatgpt := v1.Group("chatgpt")
+	{
+		chatgpt.POST("process", wrapper(chatgpt_r.Process))
 	}
 	return r
 }
