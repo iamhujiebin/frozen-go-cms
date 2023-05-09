@@ -2,8 +2,12 @@ package chatgpt_r
 
 import (
 	"encoding/json"
+	"frozen-go-cms/domain/model/chatgpt_m"
+	"frozen-go-cms/req"
 	"frozen-go-cms/resp"
+	"git.hilo.cn/hilo-common/domain"
 	"git.hilo.cn/hilo-common/mycontext"
+	"git.hilo.cn/hilo-common/resource/mysql"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
@@ -11,7 +15,8 @@ import (
 )
 
 type ProcessReq struct {
-	Message []ProcessContent `json:"messages"`
+	SessionId uint64           `json:"session_id"`
+	Message   []ProcessContent `json:"messages"`
 }
 
 type ProcessContent struct {
@@ -23,24 +28,33 @@ type ProcessContent struct {
 // @Summary 请求
 // @Param Authorization header string true "token"
 // @Param ProcessReq body ProcessReq true "请求体"
-// @Success 200 {object} []ProcessContent
+// @Success 200 {object} ProcessReq
 // @Router /v1_0/chatgpt/process [post]
 func Process(c *gin.Context) (*mycontext.MyContext, error) {
 	myCtx := mycontext.CreateMyContext(c.Keys)
+	userId, err := req.GetUserId(c)
+	if err != nil {
+		return myCtx, err
+	}
 	var param ProcessReq
 	if err := c.ShouldBind(&param); err != nil {
 		return myCtx, err
 	}
-	// todo 持久化
-	//userId, err := req.GetUserId(c)
-	//if err != nil {
-	//	return myCtx, err
-	//}
 	reply, err := process(param)
 	if err != nil {
 		return myCtx, err
 	}
 	param.Message = append(param.Message, ProcessContent{Role: "assistant", Content: reply})
+	message, _ := json.Marshal(param)
+	var model = domain.CreateModelContext(myCtx)
+	if err := chatgpt_m.UpdateSessionInit(model, chatgpt_m.ChatgptSession{
+		Entity:    mysql.Entity{},
+		UserId:    userId,
+		SessionId: param.SessionId,
+		Message:   string(message),
+	}); err != nil {
+		return myCtx, err
+	}
 	resp.ResponseOk(c, param)
 	return myCtx, nil
 }

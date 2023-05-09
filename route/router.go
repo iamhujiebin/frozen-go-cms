@@ -48,8 +48,12 @@ func InitRouter() *gin.Engine {
 		todo.POST("markAll", wrapper(todo_r.MarkAllTodoList))
 	}
 	chatgpt := v1.Group("chatgpt")
+	chatgpt.Use(JWTApiHandle)
 	{
 		chatgpt.POST("process", wrapper(chatgpt_r.Process))
+		chatgpt.GET("session/list", wrapper(chatgpt_r.SessionList))
+		chatgpt.POST("session/add", wrapper(chatgpt_r.SessionAdd))
+		chatgpt.GET("session/detail/:id", wrapper(chatgpt_r.SessionDetail))
 	}
 	return r
 }
