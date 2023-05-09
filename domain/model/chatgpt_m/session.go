@@ -67,5 +67,5 @@ func CreateSessionInit(model *domain.Model, userId mysql.ID) (mysql.ID, error) {
 	if err := model.DB().Model(ChatgptSession{}).Create(&maxSession).Error; err != nil {
 		return 0, err
 	}
-	return maxSession.SessionId + 1, nil
+	return maxSession.SessionId, nil
 }
