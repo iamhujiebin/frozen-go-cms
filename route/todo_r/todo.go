@@ -8,6 +8,7 @@ import (
 	"git.hilo.cn/hilo-common/domain"
 	"git.hilo.cn/hilo-common/mycontext"
 	"github.com/gin-gonic/gin"
+	"sort"
 	"strconv"
 )
 
@@ -38,6 +39,13 @@ func TodoList(c *gin.Context) (*mycontext.MyContext, error) {
 			IsDone: todo.IsDone,
 		})
 	}
+	// isDone的放在后面
+	sort.SliceStable(todolist, func(i, j int) bool {
+		if !todolist[i].IsDone && todolist[j].IsDone {
+			return true
+		}
+		return false
+	})
 	resp.ResponseOk(c, todolist)
 	return myCtx, nil
 }
