@@ -53,6 +53,7 @@ func InitRouter() *gin.Engine {
 		chatgpt.POST("process", wrapper(chatgpt_r.Process))
 		chatgpt.GET("session/list", wrapper(chatgpt_r.SessionList))
 		chatgpt.POST("session/add", wrapper(chatgpt_r.SessionAdd))
+		chatgpt.DELETE("session/del/:id", wrapper(chatgpt_r.SessionDel))
 		chatgpt.GET("session/detail/:id", wrapper(chatgpt_r.SessionDetail))
 	}
 	return r

@@ -80,3 +80,24 @@ func SessionAdd(c *gin.Context) (*mycontext.MyContext, error) {
 	resp.ResponseOk(c, id)
 	return myCtx, nil
 }
+
+// @Tags Chatgpt
+// @Summary 删除一个会话
+// @Param Authorization header string true "token"
+// @Success 200 {object} uint64
+// @Router /v1_0/chatgpt/session/del/:id [delete]
+func SessionDel(c *gin.Context) (*mycontext.MyContext, error) {
+	myCtx := mycontext.CreateMyContext(c.Keys)
+	userId, err := req.GetUserId(c)
+	if err != nil {
+		return myCtx, err
+	}
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	var model = domain.CreateModelContext(myCtx)
+	err = chatgpt_m.DeleteSession(model, userId, id)
+	if err != nil {
+		return myCtx, err
+	}
+	resp.ResponseOk(c, "")
+	return myCtx, nil
+}

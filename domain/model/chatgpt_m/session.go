@@ -69,3 +69,11 @@ func CreateSessionInit(model *domain.Model, userId mysql.ID) (mysql.ID, error) {
 	}
 	return maxSession.SessionId, nil
 }
+
+// 删除一个会话
+func DeleteSession(model *domain.Model, userId, sessionId mysql.ID) error {
+	if err := model.DB().Model(ChatgptSession{}).Where("user_id = ? AND session_id = ?",userId,sessionId).Delete(&ChatgptSession{}).Error;err != nil {
+		return err
+	}
+	return nil
+}
