@@ -2,6 +2,7 @@ package route
 
 import (
 	_ "frozen-go-cms/docs"
+	"frozen-go-cms/route/album_r"
 	"frozen-go-cms/route/article_r"
 	"frozen-go-cms/route/channel_r"
 	"frozen-go-cms/route/chatgpt_r"
@@ -29,7 +30,7 @@ func InitRouter() *gin.Engine {
 	}
 	v1.GET("channels", wrapper(channel_r.Channels))
 
-	articles := v1.Group("mp/articles")
+	articles := v1.Group("articles")
 	articles.Use(JWTApiHandle)
 	{
 		articles.POST("", wrapper(article_r.PostArticle))
@@ -38,7 +39,7 @@ func InitRouter() *gin.Engine {
 		articles.DELETE(":id", wrapper(article_r.DeleteArticle))
 		articles.GET("", wrapper(article_r.PageArticle))
 	}
-	todo := v1.Group("mp/todolist")
+	todo := v1.Group("todolist")
 	todo.Use(JWTApiHandle)
 	{
 		todo.GET("", wrapper(todo_r.TodoList))
@@ -46,6 +47,15 @@ func InitRouter() *gin.Engine {
 		todo.PUT(":id", wrapper(todo_r.MarkTodoList))
 		todo.DELETE(":id", wrapper(todo_r.DelTodoList))
 		todo.POST("markAll", wrapper(todo_r.MarkAllTodoList))
+	}
+	album := v1.Group("album")
+	album.Use(JWTApiHandle)
+	{
+		album.GET("list", wrapper(album_r.AlbumList))
+		album.POST("add", wrapper(album_r.AlbumAdd))
+		album.DELETE("del/:id", wrapper(album_r.AlbumDel))
+		album.GET("detail/:id", wrapper(album_r.AlbumDetail))
+		album.POST("detail", wrapper(album_r.AddAlbumDetail))
 	}
 	chatgpt := v1.Group("chatgpt")
 	chatgpt.Use(JWTApiHandle)
