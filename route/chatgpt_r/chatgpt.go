@@ -2,6 +2,7 @@ package chatgpt_r
 
 import (
 	"encoding/json"
+	"fmt"
 	"frozen-go-cms/domain/model/chatgpt_m"
 	"frozen-go-cms/req"
 	"frozen-go-cms/resp"
@@ -97,4 +98,41 @@ func process(param ProcessReq) (string, error) {
 		return "", err
 	}
 	return string(body), err
+}
+
+func Process2() {
+	url := "https://api.openai.com/v1/chat/completions"
+	method := "POST"
+
+	payload := strings.NewReader(`{
+     "model": "gpt-3.5-turbo",
+     "messages": [{"role": "user", "content": "中国什么时候成立的"},{"role": "user", "content": "你好像弄错了"},{"role": "user", "content": "不是1959年吗"}],
+     "temperature": 0.7,
+     "n":2,
+     "stream":false
+   }`)
+
+	client := &http.Client{}
+	req, err := http.NewRequest(method, url, payload)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", "Bearer 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")
+
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(string(body))
 }
