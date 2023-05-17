@@ -2,7 +2,7 @@ package chatgpt_r
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"frozen-go-cms/domain/model/chatgpt_m"
 	"frozen-go-cms/req"
 	"frozen-go-cms/resp"
@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -41,7 +42,7 @@ func Process(c *gin.Context) (*mycontext.MyContext, error) {
 	if err := c.ShouldBind(&param); err != nil {
 		return myCtx, err
 	}
-	reply, err := process(param)
+	reply, err := RealProcess(param)
 	if err != nil {
 		return myCtx, err
 	}
@@ -100,39 +101,85 @@ func process(param ProcessReq) (string, error) {
 	return string(body), err
 }
 
-func Process2() {
+type ChatGPTRequest struct {
+	Model       string           `json:"model"` // gpt-3.5-turbo
+	Messages    []ProcessContent `json:"messages"`
+	Temperature float64          `json:"temperature"` // 0.7
+	N           int              `json:"n"`           // 返回答案个数
+	Stream      bool             `json:"stream"`      // 是否流式返回
+}
+
+type ChatGPTResponse struct {
+	ID      string    `json:"id"`
+	Object  string    `json:"object"`
+	Created int       `json:"created"`
+	Model   string    `json:"model"`
+	Usage   Usage     `json:"usage"`
+	Choices []Choices `json:"choices"`
+}
+type Usage struct {
+	PromptTokens     int `json:"prompt_tokens"`
+	CompletionTokens int `json:"completion_tokens"`
+	TotalTokens      int `json:"total_tokens"`
+}
+type Message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+type Choices struct {
+	Message      Message `json:"message"`
+	FinishReason string  `json:"finish_reason"`
+	Index        int     `json:"index"`
+}
+
+func RealProcess(p ProcessReq) (string, error) {
 	url := "https://api.openai.com/v1/chat/completions"
 	method := "POST"
 
-	payload := strings.NewReader(`{
-     "model": "gpt-3.5-turbo",
-     "messages": [{"role": "user", "content": "中国什么时候成立的"},{"role": "user", "content": "你好像弄错了"},{"role": "user", "content": "不是1959年吗"}],
-     "temperature": 0.7,
-     "n":2,
-     "stream":false
-   }`)
+	var param = ChatGPTRequest{
+		Model:       "gpt-3.5-turbo",
+		Messages:    nil,
+		Temperature: 0.7,
+		N:           1,
+		Stream:      false,
+	}
+	for i, message := range p.Message {
+		if message.Role == "assistant" {
+			continue
+		}
+		param.Messages = append(param.Messages, p.Message[i])
+	}
+	j, _ := json.Marshal(param)
+	payload := strings.NewReader(string(j))
 
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, payload)
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		return "", err
 	}
+	token := os.Getenv("CHATGPT_TOKEN")
+
 	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Authorization", "Bearer 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")
+	req.Header.Add("Authorization", "Bearer "+token)
 
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return "", err
 	}
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return "", err
 	}
-	fmt.Println(string(body))
+	response := new(ChatGPTResponse)
+	err = json.Unmarshal(body, response)
+	if err != nil {
+		return "", err
+	}
+	if len(response.Choices) <= 0 {
+		return "", errors.New("chatgpt no answers")
+	}
+	return response.Choices[0].Message.Content, nil
 }
