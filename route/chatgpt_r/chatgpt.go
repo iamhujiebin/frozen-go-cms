@@ -48,6 +48,9 @@ func Process(c *gin.Context) (*mycontext.MyContext, error) {
 	if err != nil {
 		return myCtx, err
 	}
+	if len(param.Message) > 0 {
+		param.Message[len(param.Message)-1].CreatedTime = time.Now().Format("2006-01-02 15:04:05")
+	}
 	param.Message = append(param.Message, ProcessContent{Role: "assistant", Content: reply, CreatedTime: time.Now().Format("2006-01-02 15:04:05")})
 	message, _ := json.Marshal(param)
 	var model = domain.CreateModelContext(myCtx)
@@ -104,11 +107,11 @@ func process(param ProcessReq) (string, error) {
 }
 
 type ChatGPTRequest struct {
-	Model       string           `json:"model"` // gpt-3.5-turbo
-	Messages    []ProcessContent `json:"messages"`
-	Temperature float64          `json:"temperature"` // 0.7
-	N           int              `json:"n"`           // 返回答案个数
-	Stream      bool             `json:"stream"`      // 是否流式返回
+	Model       string    `json:"model"` // gpt-3.5-turbo
+	Messages    []Message `json:"messages"`
+	Temperature float64   `json:"temperature"` // 0.7
+	N           int       `json:"n"`           // 返回答案个数
+	Stream      bool      `json:"stream"`      // 是否流式返回
 }
 
 type ChatGPTResponse struct {
@@ -145,11 +148,11 @@ func RealProcess(p ProcessReq) (string, error) {
 		N:           1,
 		Stream:      false,
 	}
-	for i, message := range p.Message {
+	for _, message := range p.Message {
 		if message.Role == "assistant" {
 			continue
 		}
-		param.Messages = append(param.Messages, p.Message[i])
+		param.Messages = append(param.Messages, Message{message.Role, message.Content})
 	}
 	j, _ := json.Marshal(param)
 	payload := strings.NewReader(string(j))
