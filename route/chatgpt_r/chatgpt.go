@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 type ProcessReq struct {
@@ -22,8 +23,9 @@ type ProcessReq struct {
 }
 
 type ProcessContent struct {
-	Role    string `json:"role"` // user | assistant
-	Content string `json:"content"`
+	Role        string `json:"role"` // user | assistant
+	Content     string `json:"content"`
+	CreatedTime string `json:"createdTime"`
 }
 
 // @Tags Chatgpt
@@ -46,7 +48,7 @@ func Process(c *gin.Context) (*mycontext.MyContext, error) {
 	if err != nil {
 		return myCtx, err
 	}
-	param.Message = append(param.Message, ProcessContent{Role: "assistant", Content: reply})
+	param.Message = append(param.Message, ProcessContent{Role: "assistant", Content: reply, CreatedTime: time.Now().Format("2006-01-02 15:04:05")})
 	message, _ := json.Marshal(param)
 	var model = domain.CreateModelContext(myCtx)
 	if err := chatgpt_m.UpdateSessionInit(model, chatgpt_m.ChatgptSession{
