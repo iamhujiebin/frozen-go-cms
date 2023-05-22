@@ -53,7 +53,7 @@ func JWTApiHandle(c *gin.Context) {
 	claims, err := jwt.ParseToken(token)
 	if err != nil {
 		logger.Warnf("token parsed err:%v", err)
-		c.Abort()
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 	logger = logger.WithField("userId", claims.UserId)
