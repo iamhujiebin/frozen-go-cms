@@ -72,7 +72,10 @@ func CreateSessionInit(model *domain.Model, userId mysql.ID) (mysql.ID, error) {
 
 // 删除一个会话
 func DeleteSession(model *domain.Model, userId, sessionId mysql.ID) error {
-	if err := model.DB().Model(ChatgptSession{}).Where("user_id = ? AND session_id = ?",userId,sessionId).Delete(&ChatgptSession{}).Error;err != nil {
+	if sessionId == 0 {
+		return model.DB().Model(ChatgptSession{}).Where("user_id = ? AND session_id = ?", userId, sessionId).UpdateColumn("message", "").Error
+	}
+	if err := model.DB().Model(ChatgptSession{}).Where("user_id = ? AND session_id = ?", userId, sessionId).Delete(&ChatgptSession{}).Error; err != nil {
 		return err
 	}
 	return nil
