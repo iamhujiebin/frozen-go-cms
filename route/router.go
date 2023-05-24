@@ -27,6 +27,7 @@ func InitRouter() *gin.Engine {
 	user.Use(JWTApiHandle)
 	{
 		user.GET("profile", wrapper(user_r.UserProfile))
+		user.PUT("profile", wrapper(user_r.PutUserProfile))
 	}
 	v1.GET("channels", wrapper(channel_r.Channels))
 

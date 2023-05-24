@@ -1,6 +1,7 @@
 package user_m
 
 import (
+	"frozen-go-cms/_const/enum/user_e"
 	"git.hilo.cn/hilo-common/domain"
 	"git.hilo.cn/hilo-common/resource/mysql"
 	"gorm.io/gorm"
@@ -9,6 +10,8 @@ import (
 type User struct {
 	mysql.Entity
 	Mobile string
+	Name   string
+	Gender user_e.UserGender // 0:other 1:male 2:female
 }
 
 // 获取用户
@@ -33,4 +36,12 @@ func GetUserOrCreate(model *domain.Model, mobile string) (User, error) {
 		}
 	}
 	return user, nil
+}
+
+func UpdateUser(model *domain.Model, id mysql.ID, name string, gender user_e.UserGender) error {
+	updates := map[string]interface{}{
+		"name":   name,
+		"gender": gender,
+	}
+	return model.DB().Model(User{}).Where("id = ?", id).Updates(updates).Error
 }

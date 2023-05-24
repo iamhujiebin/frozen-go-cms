@@ -2,6 +2,7 @@ package user_r
 
 import (
 	"fmt"
+	"frozen-go-cms/_const/enum/user_e"
 	"frozen-go-cms/domain/model/user_m"
 	"frozen-go-cms/myerr/bizerr"
 	"frozen-go-cms/req"
@@ -55,12 +56,12 @@ func UserAuth(c *gin.Context) (*mycontext.MyContext, error) {
 }
 
 type UserProfileResp struct {
-	Id       string `json:"id"`
-	Photo    string `json:"photo"`
-	Name     string `json:"name"`
-	Mobile   string `json:"mobile"`
-	Gender   int    `json:"gender"`
-	Birthday string `json:"birthday"`
+	Id       string            `json:"id"`
+	Photo    string            `json:"photo"`
+	Name     string            `json:"name"`
+	Mobile   string            `json:"mobile"`
+	Gender   user_e.UserGender `json:"gender"`
+	Birthday string            `json:"birthday"`
 }
 
 // @Tags 用户
@@ -76,13 +77,46 @@ func UserProfile(c *gin.Context) (*mycontext.MyContext, error) {
 	}
 	model := domain.CreateModelContext(myCtx)
 	user := user_m.GetUser(model, userId)
+	name := fmt.Sprintf("CMS_%s", user.Mobile)
+	if len(user.Name) > 0 {
+		name = user.Name
+	}
 	resp.ResponseOk(c, UserProfileResp{
 		Id:       fmt.Sprintf("%d", user.ID),
 		Photo:    "",
-		Name:     fmt.Sprintf("CMS_%s", user.Mobile),
+		Name:     name,
 		Mobile:   user.Mobile,
-		Gender:   1,
+		Gender:   user.Gender,
 		Birthday: time.Now().Format("2006-01-02"),
 	})
+	return myCtx, nil
+}
+
+type PutUserProfileReq struct {
+	Name   string            `json:"name"`
+	Gender user_e.UserGender `json:"gender"`
+}
+
+// @Tags 用户
+// @Summary 更新资料
+// @Param Authorization header string true "请求体"
+// @Param PutUserProfileReq body PutUserProfileReq true "请求体"
+// @Success 200
+// @Router /v1_0/user/profile [put]
+func PutUserProfile(c *gin.Context) (*mycontext.MyContext, error) {
+	myCtx := mycontext.CreateMyContext(c.Keys)
+	userId, err := req.GetUserId(c)
+	if err != nil {
+		return myCtx, err
+	}
+	var param PutUserProfileReq
+	if err := c.ShouldBindJSON(&param); err != nil {
+		return myCtx, err
+	}
+	model := domain.CreateModelContext(myCtx)
+	if err := user_m.UpdateUser(model, userId, param.Name, param.Gender); err != nil {
+		return myCtx, err
+	}
+	resp.ResponseOk(c, "")
 	return myCtx, nil
 }
