@@ -101,7 +101,7 @@ type PutUserProfileReq struct {
 // @Summary 更新资料
 // @Param Authorization header string true "请求体"
 // @Param PutUserProfileReq body PutUserProfileReq true "请求体"
-// @Success 200
+// @Success 200 {object} UserProfileResp
 // @Router /v1_0/user/profile [put]
 func PutUserProfile(c *gin.Context) (*mycontext.MyContext, error) {
 	myCtx := mycontext.CreateMyContext(c.Keys)
@@ -117,6 +117,18 @@ func PutUserProfile(c *gin.Context) (*mycontext.MyContext, error) {
 	if err := user_m.UpdateUser(model, userId, param.Name, param.Gender); err != nil {
 		return myCtx, err
 	}
-	resp.ResponseOk(c, "")
+	user := user_m.GetUser(model, userId)
+	name := fmt.Sprintf("CMS_%s", user.Mobile)
+	if len(user.Name) > 0 {
+		name = user.Name
+	}
+	resp.ResponseOk(c, UserProfileResp{
+		Id:       fmt.Sprintf("%d", user.ID),
+		Photo:    "",
+		Name:     name,
+		Mobile:   user.Mobile,
+		Gender:   user.Gender,
+		Birthday: time.Now().Format("2006-01-02"),
+	})
 	return myCtx, nil
 }
