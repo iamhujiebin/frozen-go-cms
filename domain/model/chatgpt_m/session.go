@@ -13,6 +13,13 @@ type ChatgptSession struct {
 	Message   string
 }
 
+type ChatgptSessionBack struct {
+	mysql.Entity
+	UserId    mysql.ID
+	SessionId mysql.ID
+	Message   string
+}
+
 // 获取用户会话列表
 // 一个都没有则初始化一个
 func GetUserSessionsInit(model *domain.Model, userId mysql.ID) ([]ChatgptSession, error) {
@@ -72,11 +79,26 @@ func CreateSessionInit(model *domain.Model, userId mysql.ID) (mysql.ID, error) {
 
 // 删除一个会话
 func DeleteSession(model *domain.Model, userId, sessionId mysql.ID) error {
+	_ = BackupSession(model, userId, sessionId)
 	if sessionId == 0 {
 		return model.DB().Model(ChatgptSession{}).Where("user_id = ? AND session_id = ?", userId, sessionId).UpdateColumn("message", "").Error
 	}
 	if err := model.DB().Model(ChatgptSession{}).Where("user_id = ? AND session_id = ?", userId, sessionId).Delete(&ChatgptSession{}).Error; err != nil {
 		return err
+	}
+	return nil
+}
+
+func BackupSession(model *domain.Model, userId, sessionId mysql.ID) error {
+	var session ChatgptSession
+	if err := model.DB().Model(ChatgptSession{}).Where("user_id = ? AND session_id = ?", userId, sessionId).First(&session).Error; err == nil {
+		session.ID = 0
+		return model.DB().Create(&ChatgptSessionBack{
+			Entity:    session.Entity,
+			UserId:    session.UserId,
+			SessionId: session.SessionId,
+			Message:   session.Message,
+		}).Error
 	}
 	return nil
 }
