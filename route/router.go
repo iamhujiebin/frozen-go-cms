@@ -8,6 +8,7 @@ import (
 	"frozen-go-cms/route/chatgpt_r"
 	"frozen-go-cms/route/todo_r"
 	"frozen-go-cms/route/user_r"
+	"frozen-go-cms/route/ws_r"
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
@@ -18,6 +19,10 @@ func InitRouter() *gin.Engine {
 	r.Use(Cors()) // 跨域
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	// ws
+	r.GET("/ws", JWTApiHandle, ws_r.WsHandler)
+	r.GET("/ws/test", ws_r.WsTest)
+	// http
 	noLogin := r.Group("")
 	noLogin.Use(ExceptionHandle, LoggerHandle)
 	v1 := noLogin.Group("/v1_0")
