@@ -21,12 +21,13 @@ func InitRouter() *gin.Engine {
 
 	// ws
 	//r.GET("/ws", JWTApiHandle, ws_r.WsHandler)
-	r.GET("/ws/:token", ws_r.WsHandler)
+	//r.GET("/ws/:token", ws_r.WsHandler)
 	r.GET("/wsTest", ws_r.WsTest)
 	// http
 	noLogin := r.Group("")
 	noLogin.Use(ExceptionHandle, LoggerHandle)
 	v1 := noLogin.Group("/v1_0")
+	v1.GET("/ws/:token", ws_r.WsHandler)
 	v1.POST("authorizations", wrapper(user_r.UserAuth))
 
 	user := v1.Group("user")
