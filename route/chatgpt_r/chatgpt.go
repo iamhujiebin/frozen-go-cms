@@ -3,9 +3,11 @@ package chatgpt_r
 import (
 	"encoding/json"
 	"errors"
+	"frozen-go-cms/_const/enum/ws_e"
 	"frozen-go-cms/domain/model/chatgpt_m"
 	"frozen-go-cms/req"
 	"frozen-go-cms/resp"
+	"frozen-go-cms/route/ws_r"
 	"git.hilo.cn/hilo-common/domain"
 	"git.hilo.cn/hilo-common/mycontext"
 	"git.hilo.cn/hilo-common/resource/mysql"
@@ -62,6 +64,7 @@ func Process(c *gin.Context) (*mycontext.MyContext, error) {
 	}); err != nil {
 		return myCtx, err
 	}
+	ws_r.SendToClient(userId, ws_e.CmdNewMsg) // 多端同步
 	resp.ResponseOk(c, param)
 	return myCtx, nil
 }

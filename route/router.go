@@ -20,8 +20,9 @@ func InitRouter() *gin.Engine {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// ws
-	r.GET("/ws", JWTApiHandle, ws_r.WsHandler)
-	r.GET("/ws/test", ws_r.WsTest)
+	//r.GET("/ws", JWTApiHandle, ws_r.WsHandler)
+	r.GET("/ws/:token", ws_r.WsHandler)
+	r.GET("/wsTest", ws_r.WsTest)
 	// http
 	noLogin := r.Group("")
 	noLogin.Use(ExceptionHandle, LoggerHandle)
