@@ -6,6 +6,7 @@ import (
 	"frozen-go-cms/route/article_r"
 	"frozen-go-cms/route/channel_r"
 	"frozen-go-cms/route/chatgpt_r"
+	"frozen-go-cms/route/music_r"
 	"frozen-go-cms/route/todo_r"
 	"frozen-go-cms/route/user_r"
 	"frozen-go-cms/route/ws_r"
@@ -72,6 +73,11 @@ func InitRouter() *gin.Engine {
 		chatgpt.POST("session/add", wrapper(chatgpt_r.SessionAdd))
 		chatgpt.DELETE("session/del/:id", wrapper(chatgpt_r.SessionDel))
 		chatgpt.GET("session/detail/:id", wrapper(chatgpt_r.SessionDetail))
+	}
+	music := v1.Group("music")
+	music.Use(JWTApiHandle)
+	{
+		music.GET("list", wrapper(music_r.MusicList))
 	}
 	return r
 }
