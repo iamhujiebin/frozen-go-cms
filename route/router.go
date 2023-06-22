@@ -78,6 +78,7 @@ func InitRouter() *gin.Engine {
 	music.Use(JWTApiHandle)
 	{
 		music.GET("list", wrapper(music_r.MusicList))
+		music.GET("search", wrapper(music_r.MusicSearch))
 	}
 	return r
 }
