@@ -79,6 +79,7 @@ func InitRouter() *gin.Engine {
 	{
 		music.GET("list", wrapper(music_r.MusicList))
 		music.GET("search", wrapper(music_r.MusicSearch))
+		music.GET("down", wrapper(music_r.MusicDown))
 	}
 	return r
 }

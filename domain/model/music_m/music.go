@@ -3,6 +3,7 @@ package music_m
 import (
 	"git.hilo.cn/hilo-common/domain"
 	"git.hilo.cn/hilo-common/resource/mysql"
+	"gorm.io/gorm/clause"
 )
 
 // Music  music列表
@@ -20,7 +21,7 @@ func (Music) TableName() string {
 }
 
 func AddMusic(model *domain.Model, music Music) error {
-	return model.DB().Create(&music).Error
+	return model.DB().Clauses(clause.OnConflict{UpdateAll: true}).Create(&music).Error
 }
 
 func GetAllMusic(model *domain.Model) []Music {

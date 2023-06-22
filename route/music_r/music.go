@@ -7,19 +7,22 @@ import (
 	"frozen-go-cms/resp"
 	"git.hilo.cn/hilo-common/domain"
 	"git.hilo.cn/hilo-common/mycontext"
+	"git.hilo.cn/hilo-common/resource/mysql"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 type Music struct {
-	Id     uint64 `json:"id"`
-	Name   string `json:"name"`   //  歌曲名
-	Artist string `json:"artist"` //  歌手
-	Url    string `json:"url"`    //  音乐mp3
-	Cover  string `json:"cover"`  //  音乐封面
-	Lrc    string `json:"lrc"`    //  歌词
+	Id       uint64 `json:"id"`
+	Name     string `json:"name"`     //  歌曲名
+	Artist   string `json:"artist"`   //  歌手
+	Url      string `json:"url"`      //  音乐mp3
+	Cover    string `json:"cover"`    //  音乐封面
+	Lrc      string `json:"lyric"`    //  歌词
+	Duration string `json:"duration"` // 格式化歌曲时长
 }
 
 // @Tags 音乐
@@ -70,10 +73,11 @@ func MusicSearch(c *gin.Context) (*mycontext.MyContext, error) {
 			artist = music.Artists[0].Name
 		}
 		response = append(response, Music{
-			Id:     music.ID,
-			Name:   music.Name,
-			Artist: artist,
-			Cover:  music.Album.Artist.Img1V1URL,
+			Id:       music.ID,
+			Name:     music.Name,
+			Artist:   artist,
+			Cover:    music.Album.Artist.Img1V1URL,
+			Duration: formatTime(music.Duration),
 		})
 	}
 	resp.ResponseOk(c, response)
@@ -98,6 +102,7 @@ type SearchResponse struct {
 					Img1V1URL string `json:"img1v1Url"`
 				} `json:"artist"`
 			} `json:"album"`
+			Duration uint64 `json:"duration"`
 		} `json:"songs"`
 		HasMore   bool `json:"hasMore"`
 		SongCount int  `json:"songCount"`
@@ -107,7 +112,7 @@ type SearchResponse struct {
 
 func search(query string) (response SearchResponse) {
 	query = url.QueryEscape(query)
-	_url := fmt.Sprintf("http://music.163.com/api/search/get?s=%s&type=1", query)
+	_url := fmt.Sprintf("http://music.163.com/api/search/get?s=%s&type=1&limit=100", query)
 	method := "GET"
 
 	client := &http.Client{}
@@ -135,4 +140,111 @@ func search(query string) (response SearchResponse) {
 		return
 	}
 	return
+}
+
+type MusicDownReq struct {
+	Id uint64 `form:"id"`
+}
+
+// @Tags 音乐
+// @Summary 搜索
+// @Param Authorization header string true "token"
+// @Param id query int true "歌id"
+// @Success 200 {object} Music
+// @Router /v1_0/music/down [get]
+func MusicDown(c *gin.Context) (*mycontext.MyContext, error) {
+	myCtx := mycontext.CreateMyContext(c.Keys)
+	model := domain.CreateModelContext(myCtx)
+	var param MusicDownReq
+	if err := c.ShouldBindQuery(&param); err != nil {
+		return myCtx, err
+	}
+	song := down(param.Id)
+	var response = Music{
+		Id:     param.Id,
+		Name:   song.Title,
+		Artist: song.Author,
+		Url:    song.URL,
+		Cover:  song.Pic,
+		Lrc:    song.Lrc,
+	}
+	response.Lrc = downloadLrc(response.Lrc)
+	if err := music_m.AddMusic(model, music_m.Music{
+		Entity: mysql.Entity{ID: response.Id},
+		Name:   response.Name,
+		Artist: response.Artist,
+		Url:    response.Url,
+		Cover:  response.Cover,
+		Lrc:    response.Lrc,
+	}); err != nil {
+		return myCtx, err
+	}
+	resp.ResponseOk(c, response)
+	return myCtx, nil
+}
+
+type DownResponse struct {
+	Title  string `json:"title"`
+	Author string `json:"author"`
+	URL    string `json:"url"`
+	Pic    string `json:"pic"`
+	Lrc    string `json:"lrc"`
+}
+
+func down(id uint64) (response DownResponse) {
+	url := fmt.Sprintf("https://api.i-meto.com/meting/api?server=netease&id=%d&type=song", id)
+	method := "GET"
+	client := &http.Client{}
+	req, err := http.NewRequest(method, url, nil)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	var responses []DownResponse
+	if err := json.Unmarshal(body, &responses); err != nil {
+		fmt.Println(err)
+		return
+	}
+	if len(responses) <= 0 {
+		return
+	}
+	return responses[0]
+}
+
+func downloadLrc(url string) string {
+	method := "GET"
+
+	client := &http.Client{}
+	req, err := http.NewRequest(method, url, nil)
+
+	if err != nil {
+	}
+	res, err := client.Do(req)
+	if err != nil {
+	}
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return string(body)
+}
+
+func formatTime(milliSeconds uint64) string {
+	duration := time.Duration(milliSeconds) * time.Millisecond
+	return fmt.Sprintf("%02d:%02d\n", int(duration.Minutes())%60, int(duration.Seconds())%60)
 }
