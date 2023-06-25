@@ -2,7 +2,7 @@ package model
 
 import (
 	"fmt"
-	"git.hilo.cn/hilo-common/resource/mysql"
+	"frozen-go-cms/hilo-common/resource/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"time"

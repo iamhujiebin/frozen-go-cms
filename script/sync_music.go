@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"frozen-go-cms/domain/model/music_m"
-	"git.hilo.cn/hilo-common/domain"
+	"frozen-go-cms/hilo-common/domain"
 	"io/ioutil"
 	"net/http"
 )
