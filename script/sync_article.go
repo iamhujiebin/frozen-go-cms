@@ -1,4 +1,4 @@
-package main
+package script
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func main() {
+func syncArticle() {
 
 	url := "http://geek.itheima.net/v1_0/mp/articles?page=1&per_page=10000&channel_id="
 	method := "GET"
