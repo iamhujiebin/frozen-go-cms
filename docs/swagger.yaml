@@ -1,0 +1,734 @@
+definitions:
+  album_r.ProcessReq:
+    properties:
+      albumId:
+        type: integer
+      images:
+        items:
+          type: string
+        type: array
+    type: object
+  article_r.ArticleCover:
+    properties:
+      images:
+        items:
+          type: string
+        type: array
+      type:
+        type: integer
+    type: object
+  article_r.GetArticleResp:
+    properties:
+      channel_id:
+        type: integer
+      content:
+        type: string
+      cover:
+        $ref: '#/definitions/article_r.ArticleCover'
+        type: object
+      id:
+        type: string
+      pub_date:
+        type: string
+      title:
+        type: string
+    type: object
+  article_r.ListArticle:
+    properties:
+      comment_count:
+        type: integer
+      cover:
+        $ref: '#/definitions/article_r.ArticleCover'
+        type: object
+      id:
+        type: string
+      like_count:
+        type: integer
+      pubdate:
+        type: string
+      read_count:
+        type: integer
+      status:
+        type: integer
+      title:
+        type: string
+    type: object
+  article_r.ListArticleResp:
+    properties:
+      page:
+        type: integer
+      per_page:
+        type: integer
+      results:
+        items:
+          $ref: '#/definitions/article_r.ListArticle'
+        type: array
+      total_count:
+        type: integer
+    type: object
+  article_r.PostArticleReq:
+    properties:
+      channel_id:
+        type: string
+      content:
+        type: string
+      cover:
+        $ref: '#/definitions/article_r.ArticleCover'
+        type: object
+      title:
+        type: string
+      type:
+        type: integer
+    required:
+    - channel_id
+    - content
+    - title
+    - type
+    type: object
+  article_r.PostPutArticleResp:
+    properties:
+      id:
+        type: string
+    type: object
+  article_r.PutArticleReq:
+    properties:
+      channel_id:
+        type: integer
+      content:
+        type: string
+      cover:
+        $ref: '#/definitions/article_r.ArticleCover'
+        type: object
+      title:
+        type: string
+      type:
+        type: integer
+    required:
+    - channel_id
+    - content
+    - title
+    - type
+    type: object
+  channel_r.ChannelData:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  channel_r.ChannelsResp:
+    properties:
+      channels:
+        items:
+          $ref: '#/definitions/channel_r.ChannelData'
+        type: array
+    type: object
+  chatgpt_r.ProcessContent:
+    properties:
+      content:
+        type: string
+      createdTime:
+        type: string
+      role:
+        description: user | assistant
+        type: string
+    type: object
+  chatgpt_r.ProcessReq:
+    properties:
+      messages:
+        items:
+          $ref: '#/definitions/chatgpt_r.ProcessContent'
+        type: array
+      session_id:
+        type: integer
+    type: object
+  music_r.Music:
+    properties:
+      artist:
+        description: 歌手
+        type: string
+      cover:
+        description: 音乐封面
+        type: string
+      id:
+        type: integer
+      lrc:
+        description: 歌词
+        type: string
+      name:
+        description: 歌曲名
+        type: string
+      url:
+        description: 音乐mp3
+        type: string
+    type: object
+  todo_r.AddTodoListReq:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  todo_r.CvTodoList:
+    properties:
+      id:
+        type: integer
+      isDone:
+        type: boolean
+      name:
+        type: string
+    type: object
+  todo_r.MarkAllTodoListReq:
+    properties:
+      isDone:
+        type: boolean
+    type: object
+  todo_r.MarkTodoListReq:
+    properties:
+      isDone:
+        type: boolean
+    type: object
+  user_r.PutUserProfileReq:
+    properties:
+      gender:
+        type: integer
+      name:
+        type: string
+    type: object
+  user_r.UserAuthReq:
+    properties:
+      code:
+        description: 验证码
+        type: string
+      mobile:
+        description: 手机号
+        type: string
+    required:
+    - code
+    - mobile
+    type: object
+  user_r.UserAuthResp:
+    properties:
+      refresh_token:
+        description: token
+        type: string
+      token:
+        description: token
+        type: string
+    type: object
+  user_r.UserProfileResp:
+    properties:
+      birthday:
+        type: string
+      gender:
+        type: integer
+      id:
+        type: string
+      mobile:
+        type: string
+      name:
+        type: string
+      photo:
+        type: string
+    type: object
+info:
+  contact: {}
+  license: {}
+paths:
+  /v1_0/album/add:
+    post:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: 添加
+      tags:
+      - 相册
+  /v1_0/album/del/:id:
+    delete:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: 删除
+      tags:
+      - 相册
+  /v1_0/album/detail:
+    post:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Album id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 请求体
+        in: body
+        name: ProcessReq
+        required: true
+        schema:
+          $ref: '#/definitions/album_r.ProcessReq'
+      responses:
+        "200": {}
+      summary: 明细
+      tags:
+      - 相册
+  /v1_0/album/detail/:id:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Album id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      summary: 明细
+      tags:
+      - 相册
+  /v1_0/album/list:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: integer
+            type: array
+      summary: 列表
+      tags:
+      - 相册
+  /v1_0/authorizations:
+    post:
+      parameters:
+      - description: 请求体
+        in: body
+        name: UserAuthReq
+        required: true
+        schema:
+          $ref: '#/definitions/user_r.UserAuthReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user_r.UserAuthResp'
+      summary: 登录
+      tags:
+      - 用户
+  /v1_0/channels:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/channel_r.ChannelsResp'
+      summary: 列表
+      tags:
+      - 频道
+  /v1_0/chatgpt/process:
+    post:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 请求体
+        in: body
+        name: ProcessReq
+        required: true
+        schema:
+          $ref: '#/definitions/chatgpt_r.ProcessReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/chatgpt_r.ProcessReq'
+      summary: 请求
+      tags:
+      - Chatgpt
+  /v1_0/chatgpt/session/add:
+    post:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: 添加一个会话
+      tags:
+      - Chatgpt
+  /v1_0/chatgpt/session/del/:id:
+    delete:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: 删除一个会话
+      tags:
+      - Chatgpt
+  /v1_0/chatgpt/session/detail/:id:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: session id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/chatgpt_r.ProcessReq'
+      summary: 会话明细
+      tags:
+      - Chatgpt
+  /v1_0/chatgpt/session/list:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: integer
+            type: array
+      summary: 会话列表
+      tags:
+      - Chatgpt
+  /v1_0/mp/articles:
+    get:
+      parameters:
+      - description: 请求体
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: 页数
+        in: query
+        name: per_page
+        required: true
+        type: integer
+      - description: 频道名称
+        in: query
+        name: channel_id
+        type: string
+      - description: 发布开始日期:2006-01-02
+        in: query
+        name: begin_pubdate
+        required: true
+        type: string
+      - description: 发布结束日期:2006-01-02
+        in: query
+        name: end_pubdate
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/article_r.ListArticleResp'
+      summary: 详情
+      tags:
+      - 文章
+    post:
+      parameters:
+      - description: 请求体
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 是否草稿
+        in: query
+        name: draft
+        type: string
+      - description: 请求体
+        in: body
+        name: PostArticleReq
+        required: true
+        schema:
+          $ref: '#/definitions/article_r.PostArticleReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/article_r.PostPutArticleResp'
+      summary: 发布
+      tags:
+      - 文章
+  /v1_0/mp/articles/:id:
+    delete:
+      parameters:
+      - description: 请求体
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 文章id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200": {}
+      summary: 删除
+      tags:
+      - 文章
+    get:
+      parameters:
+      - description: 请求体
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 文章id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/article_r.GetArticleResp'
+      summary: 详情
+      tags:
+      - 文章
+    put:
+      parameters:
+      - description: 请求体
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 是否草稿
+        in: query
+        name: draft
+        type: string
+      - description: 请求体
+        in: body
+        name: PutArticleReq
+        required: true
+        schema:
+          $ref: '#/definitions/article_r.PutArticleReq'
+      - description: 修改id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/article_r.PostPutArticleResp'
+      summary: 修改
+      tags:
+      - 文章
+  /v1_0/mp/todolist:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/todo_r.CvTodoList'
+            type: array
+      summary: 列表
+      tags:
+      - Todo模块
+    post:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 请求体
+        in: body
+        name: AddTodoListReq
+        required: true
+        schema:
+          $ref: '#/definitions/todo_r.AddTodoListReq'
+      responses:
+        "200": {}
+      summary: 添加
+      tags:
+      - Todo模块
+  /v1_0/mp/todolist/:id:
+    delete:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: 删除
+      tags:
+      - Todo模块
+    put:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 请求体
+        in: body
+        name: MarkTodoListReq
+        required: true
+        schema:
+          $ref: '#/definitions/todo_r.MarkTodoListReq'
+      responses:
+        "200": {}
+      summary: 标记
+      tags:
+      - Todo模块
+  /v1_0/mp/todolist/markAll:
+    post:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 请求体
+        in: body
+        name: MarkAllTodoListReq
+        required: true
+        schema:
+          $ref: '#/definitions/todo_r.MarkAllTodoListReq'
+      responses:
+        "200": {}
+      summary: 标记全部
+      tags:
+      - Todo模块
+  /v1_0/music/list:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/music_r.Music'
+            type: array
+      summary: 列表
+      tags:
+      - 音乐
+  /v1_0/user/profile:
+    get:
+      parameters:
+      - description: 请求体
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user_r.UserProfileResp'
+      summary: 资料
+      tags:
+      - 用户
+    put:
+      parameters:
+      - description: 请求体
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 请求体
+        in: body
+        name: PutUserProfileReq
+        required: true
+        schema:
+          $ref: '#/definitions/user_r.PutUserProfileReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user_r.UserProfileResp'
+      summary: 更新资料
+      tags:
+      - 用户
+swagger: "2.0"
