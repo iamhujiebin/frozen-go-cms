@@ -1,7 +1,7 @@
 package jwt
 
 import (
-	"git.hilo.cn/hilo-common/resource/config"
+	"frozen-go-cms/hilo-common/resource/config"
 	"github.com/dgrijalva/jwt-go"
 	"time"
 )

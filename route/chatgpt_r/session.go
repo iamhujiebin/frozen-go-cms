@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"frozen-go-cms/_const/enum/ws_e"
 	"frozen-go-cms/domain/model/chatgpt_m"
+	"frozen-go-cms/hilo-common/domain"
+	"frozen-go-cms/hilo-common/mycontext"
 	"frozen-go-cms/req"
 	"frozen-go-cms/resp"
 	"frozen-go-cms/route/ws_r"
-	"git.hilo.cn/hilo-common/domain"
-	"git.hilo.cn/hilo-common/mycontext"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )

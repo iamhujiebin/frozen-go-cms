@@ -1,8 +1,8 @@
 package article_m
 
 import (
-	"git.hilo.cn/hilo-common/domain"
-	"git.hilo.cn/hilo-common/resource/mysql"
+	"frozen-go-cms/hilo-common/domain"
+	"frozen-go-cms/hilo-common/resource/mysql"
 	"gorm.io/gorm/clause"
 	"time"
 )

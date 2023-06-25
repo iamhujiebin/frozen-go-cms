@@ -1,9 +1,9 @@
 package req
 
 import (
+	"frozen-go-cms/hilo-common/mycontext"
+	"frozen-go-cms/hilo-common/resource/mysql"
 	"frozen-go-cms/myerr/bizerr"
-	"git.hilo.cn/hilo-common/mycontext"
-	"git.hilo.cn/hilo-common/resource/mysql"
 	"github.com/gin-gonic/gin"
 )
 

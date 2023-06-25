@@ -2,8 +2,8 @@ package user_m
 
 import (
 	"frozen-go-cms/_const/enum/user_e"
-	"git.hilo.cn/hilo-common/domain"
-	"git.hilo.cn/hilo-common/resource/mysql"
+	"frozen-go-cms/hilo-common/domain"
+	"frozen-go-cms/hilo-common/resource/mysql"
 	"gorm.io/gorm"
 )
 

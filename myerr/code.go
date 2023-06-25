@@ -2,7 +2,7 @@ package myerr
 
 import (
 	"fmt"
-	"git.hilo.cn/hilo-common/mylogrus"
+	"frozen-go-cms/hilo-common/mylogrus"
 	"github.com/pkg/errors"
 	"strconv"
 )

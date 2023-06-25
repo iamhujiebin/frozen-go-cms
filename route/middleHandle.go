@@ -1,11 +1,11 @@
 package route
 
 import (
+	"frozen-go-cms/hilo-common/mycontext"
+	"frozen-go-cms/hilo-common/mylogrus"
+	"frozen-go-cms/hilo-common/resource/config"
 	"frozen-go-cms/req/jwt"
 	"frozen-go-cms/resp"
-	"git.hilo.cn/hilo-common/mycontext"
-	"git.hilo.cn/hilo-common/mylogrus"
-	"git.hilo.cn/hilo-common/resource/config"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
