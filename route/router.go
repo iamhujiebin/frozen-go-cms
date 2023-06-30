@@ -9,6 +9,7 @@ import (
 	"frozen-go-cms/route/music_r"
 	"frozen-go-cms/route/todo_r"
 	"frozen-go-cms/route/user_r"
+	"frozen-go-cms/route/vap_r"
 	"frozen-go-cms/route/ws_r"
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -84,6 +85,11 @@ func InitRouter() *gin.Engine {
 		music.GET("/author/search", wrapper(music_r.MusicAuthorSearch))
 		music.GET("/author/list", wrapper(music_r.MusicAuthorList))
 		music.POST("/author/down", wrapper(music_r.MusicAuthorDown))
+	}
+	vap := v1.Group("vap")
+	vap.Use(JWTApiHandle)
+	{
+		vap.POST("vapc", wrapper(vap_r.VapVapc))
 	}
 	return r
 }
