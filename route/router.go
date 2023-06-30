@@ -80,6 +80,7 @@ func InitRouter() *gin.Engine {
 		music.GET("list", wrapper(music_r.MusicList))
 		music.GET("search", wrapper(music_r.MusicSearch))
 		music.GET("down", wrapper(music_r.MusicDown))
+		music.DELETE(":id", wrapper(music_r.MusicDel))
 		music.GET("/author/search", wrapper(music_r.MusicAuthorSearch))
 		music.GET("/author/list", wrapper(music_r.MusicAuthorList))
 		music.POST("/author/down", wrapper(music_r.MusicAuthorDown))

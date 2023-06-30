@@ -94,3 +94,7 @@ func GetAllPlayLists(model *domain.Model) []MusicPlaylist {
 	}
 	return res
 }
+
+func DelMusic(model *domain.Model, id mysql.ID) error {
+	return model.DB().Model(Music{}).Where("id = ?", id).Delete(&Music{}).Error
+}

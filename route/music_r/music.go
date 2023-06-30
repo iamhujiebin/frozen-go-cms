@@ -14,6 +14,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -230,6 +231,23 @@ func MusicDown(c *gin.Context) (*mycontext.MyContext, error) {
 		return myCtx, err
 	}
 	resp.ResponseOk(c, response)
+	return myCtx, nil
+}
+
+// @Tags 音乐
+// @Summary 删除
+// @Param Authorization header string true "token"
+// @Param id path int true "歌id"
+// @Success 200 {object} Music
+// @Router /v1_0/music/{id} [delete]
+func MusicDel(c *gin.Context) (*mycontext.MyContext, error) {
+	myCtx := mycontext.CreateMyContext(c.Keys)
+	model := domain.CreateModelContext(myCtx)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err := music_m.DelMusic(model, id); err != nil {
+		return myCtx, err
+	}
+	resp.ResponseOk(c, "")
 	return myCtx, nil
 }
 
