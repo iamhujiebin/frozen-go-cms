@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
-	"os"
 )
 
 type VapVapcReq struct {
@@ -26,10 +25,29 @@ func VapVapc(c *gin.Context) (*mycontext.MyContext, error) {
 	if err := c.ShouldBindJSON(&param); err != nil {
 		return myCtx, err
 	}
-	var vapc string
-	downloadFile(param.Mp4)
-	vapc = do2()
-	c.Writer.Write([]byte(vapc))
+	client := http.Client{}
+	resp, err := client.Get(param.Mp4)
+	if err != nil {
+		return myCtx, err
+	}
+	defer resp.Body.Close()
+
+	var buf bytes.Buffer
+	_, err = io.Copy(&buf, resp.Body)
+	if err != nil {
+		return myCtx, err
+	}
+
+	file := bytes.NewReader(buf.Bytes())
+	vapcBuf := bytes.NewBuffer(nil)
+	_, err = mp4.ReadBoxStructure(file, func(h *mp4.ReadHandle) (interface{}, error) {
+		if h.BoxInfo.Type.String() == "vapc" {
+			_, _ = h.ReadData(vapcBuf)
+			return h.Expand()
+		}
+		return nil, nil
+	})
+	c.Writer.Write(vapcBuf.Bytes())
 	//resp.ResponseOk(c, vapc)
 	return myCtx, nil
 }
@@ -48,44 +66,4 @@ type Vapc struct {
 
 func (*Vapc) GetType() mp4.BoxType {
 	return BoxTypeVapc()
-}
-
-func do2() string {
-	// 打开mp4文件
-	file, err := os.Open("example.mp4")
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-	//var vapc string
-	buf := bytes.NewBuffer(nil)
-	_, err = mp4.ReadBoxStructure(file, func(h *mp4.ReadHandle) (interface{}, error) {
-		if h.BoxInfo.Type.String() == "vapc" {
-			_, _ = h.ReadData(buf)
-			return h.Expand()
-		}
-		return nil, nil
-	})
-	return buf.String()
-}
-
-func downloadFile(url string) *os.File {
-	response, err := http.Get(url)
-	if err != nil {
-		return nil
-	}
-	defer response.Body.Close()
-
-	file, err := os.Create("example.mp4")
-	if err != nil {
-		return nil
-	}
-	defer file.Close()
-
-	_, err = io.Copy(file, response.Body)
-	if err != nil {
-		return nil
-	}
-	//file.Seek(0, 0)
-	return file
 }
