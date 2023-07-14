@@ -44,6 +44,7 @@ func file() {
 	router.StaticFS(UPLOAD_PATH, http.Dir(UPLOAD_PATH))
 	group := router.Group("file") // 跨域
 	group.POST("/upload", uploadFunc)
+	group.POST("/upload2", uploadHandler)
 	_ = router.Run(fmt.Sprintf(":%d", FILE_PORT))
 }
 
@@ -114,4 +115,58 @@ func MD5V(str []byte) string {
 	h := md5.New()
 	h.Write(str)
 	return hex.EncodeToString(h.Sum(nil))
+}
+
+const (
+	ChunkSize = 1024 * 1024 // 1MB
+)
+
+func uploadHandler(c *gin.Context) {
+	file, header, err := c.Request.FormFile("file")
+	code, message := 0, "success"
+	if err != nil {
+		code = 1001
+		message = err.Error()
+	}
+	defer file.Close()
+
+	// 创建目标文件
+	targetFile, err := os.Create("./uploads/file2/" + header.Filename)
+	if err != nil {
+		code = 1001
+		message = err.Error()
+	}
+	defer targetFile.Close()
+
+	// 分片上传
+	buf := make([]byte, ChunkSize)
+	for {
+		n, err := file.Read(buf)
+		if err != nil && err != io.EOF {
+			code = 1002
+			message = err.Error()
+			break
+		}
+
+		if n == 0 {
+			break
+		}
+
+		_, err = targetFile.Write(buf[:n])
+		if err != nil {
+			code = 1003
+			message = err.Error()
+			break
+		}
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"code":    code,
+		"message": message,
+		"data": map[string]interface{}{
+			"filepath": "todo",
+			"filename": "dodo",
+			"url":      "todo",
+		},
+	})
 }
