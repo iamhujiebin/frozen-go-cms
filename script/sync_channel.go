@@ -1,4 +1,4 @@
-package script
+package main
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func syncChannel() {
+func main() {
 
 	url := "http://geek.itheima.net/v1_0/channels"
 	method := "GET"

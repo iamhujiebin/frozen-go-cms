@@ -1,4 +1,4 @@
-package script
+package main
 
 import (
 	"encoding/json"
@@ -18,7 +18,7 @@ type Data struct {
 	LrcStr string `json:"lrcStr"`
 }
 
-func syncMusic() {
+func main() {
 
 	url := "https://www.noiseblog.top/json/music.json"
 	method := "GET"
