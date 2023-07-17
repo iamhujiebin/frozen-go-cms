@@ -5,6 +5,34 @@
         "license": {}
     },
     "paths": {
+        "/v1_0/ai/prompts": {
+            "get": {
+                "tags": [
+                    "AIPrompts"
+                ],
+                "summary": "获取所有提示词",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ai_m.AiPromptData"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1_0/album/add": {
             "post": {
                 "tags": [
@@ -678,12 +706,49 @@
                 }
             }
         },
-        "/v1_0/music/list": {
+        "/v1_0/music/author/down": {
+            "post": {
+                "tags": [
+                    "音乐"
+                ],
+                "summary": "下载歌手歌单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "歌单id",
+                        "name": "MusicAuthorDownReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/music_r.MusicAuthorDownReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/music_r.Music"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1_0/music/author/list": {
             "get": {
                 "tags": [
                     "音乐"
                 ],
-                "summary": "列表",
+                "summary": "歌单列表",
                 "parameters": [
                     {
                         "type": "string",
@@ -699,8 +764,176 @@
                         "schema": {
                             "type": "array",
                             "items": {
+                                "$ref": "#/definitions/music_r.Playlist"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1_0/music/author/search": {
+            "get": {
+                "tags": [
+                    "音乐"
+                ],
+                "summary": "搜索歌手歌单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "搜索内容",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/music_r.Playlist"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1_0/music/down": {
+            "get": {
+                "tags": [
+                    "音乐"
+                ],
+                "summary": "搜索",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "歌id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/music_r.Music"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1_0/music/list": {
+            "get": {
+                "tags": [
+                    "音乐"
+                ],
+                "summary": "列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "歌单id",
+                        "name": "playlistId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
                                 "$ref": "#/definitions/music_r.Music"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1_0/music/search": {
+            "get": {
+                "tags": [
+                    "音乐"
+                ],
+                "summary": "搜索",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "搜索词",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/music_r.Music"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1_0/music/{id}": {
+            "delete": {
+                "tags": [
+                    "音乐"
+                ],
+                "summary": "删除",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "歌id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/music_r.Music"
                         }
                     }
                 }
@@ -762,9 +995,94 @@
                     }
                 }
             }
+        },
+        "/v1_0/vap/vapc": {
+            "post": {
+                "tags": [
+                    "VAP"
+                ],
+                "summary": "获取vapc",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "mp4",
+                        "name": "mp4",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
         }
     },
     "definitions": {
+        "ai_m.AiPromptData": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "object",
+                    "properties": {
+                        "en": {
+                            "type": "string"
+                        },
+                        "zh": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "subTabs": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "code": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "object",
+                                "properties": {
+                                    "en": {
+                                        "type": "string"
+                                    },
+                                    "zh": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "prompts": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "string"
+                                        },
+                                        "en": {
+                                            "type": "string"
+                                        },
+                                        "zh": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "album_r.ProcessReq": {
             "type": "object",
             "properties": {
@@ -991,10 +1309,14 @@
                     "description": "音乐封面",
                     "type": "string"
                 },
+                "duration": {
+                    "description": "格式化歌曲时长",
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
-                "lrc": {
+                "lyric": {
                     "description": "歌词",
                     "type": "string"
                 },
@@ -1004,6 +1326,40 @@
                 },
                 "url": {
                     "description": "音乐mp3",
+                    "type": "string"
+                }
+            }
+        },
+        "music_r.MusicAuthorDownReq": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "pic": {
+                    "type": "string"
+                }
+            }
+        },
+        "music_r.Playlist": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "pic": {
                     "type": "string"
                 }
             }

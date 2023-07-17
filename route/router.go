@@ -2,6 +2,7 @@ package route
 
 import (
 	_ "frozen-go-cms/docs"
+	"frozen-go-cms/route/ai_r"
 	"frozen-go-cms/route/album_r"
 	"frozen-go-cms/route/article_r"
 	"frozen-go-cms/route/channel_r"
@@ -90,6 +91,11 @@ func InitRouter() *gin.Engine {
 	vap.Use(JWTApiHandle)
 	{
 		vap.POST("vapc", wrapper(vap_r.VapVapc))
+	}
+	ai := v1.Group("ai")
+	ai.Use(JWTApiHandle)
+	{
+		ai.GET("prompts", wrapper(ai_r.Prompts))
 	}
 	return r
 }

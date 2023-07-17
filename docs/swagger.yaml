@@ -1,4 +1,41 @@
 definitions:
+  ai_m.AiPromptData:
+    properties:
+      code:
+        type: string
+      name:
+        properties:
+          en:
+            type: string
+          zh:
+            type: string
+        type: object
+      subTabs:
+        items:
+          properties:
+            code:
+              type: string
+            name:
+              properties:
+                en:
+                  type: string
+                zh:
+                  type: string
+              type: object
+            prompts:
+              items:
+                properties:
+                  code:
+                    type: string
+                  en:
+                    type: string
+                  zh:
+                    type: string
+                type: object
+              type: array
+          type: object
+        type: array
+    type: object
   album_r.ProcessReq:
     properties:
       albumId:
@@ -150,9 +187,12 @@ definitions:
       cover:
         description: 音乐封面
         type: string
+      duration:
+        description: 格式化歌曲时长
+        type: string
       id:
         type: integer
-      lrc:
+      lyric:
         description: 歌词
         type: string
       name:
@@ -160,6 +200,28 @@ definitions:
         type: string
       url:
         description: 音乐mp3
+        type: string
+    type: object
+  music_r.MusicAuthorDownReq:
+    properties:
+      desc:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      pic:
+        type: string
+    type: object
+  music_r.Playlist:
+    properties:
+      desc:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      pic:
         type: string
     type: object
   todo_r.AddTodoListReq:
@@ -235,6 +297,24 @@ info:
   contact: {}
   license: {}
 paths:
+  /v1_0/ai/prompts:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/ai_m.AiPromptData'
+            type: array
+      summary: 获取所有提示词
+      tags:
+      - AIPrompts
   /v1_0/album/add:
     post:
       parameters:
@@ -676,7 +756,52 @@ paths:
       summary: 标记全部
       tags:
       - Todo模块
-  /v1_0/music/list:
+  /v1_0/music/{id}:
+    delete:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 歌id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/music_r.Music'
+      summary: 删除
+      tags:
+      - 音乐
+  /v1_0/music/author/down:
+    post:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 歌单id
+        in: body
+        name: MusicAuthorDownReq
+        required: true
+        schema:
+          $ref: '#/definitions/music_r.MusicAuthorDownReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/music_r.Music'
+            type: array
+      summary: 下载歌手歌单
+      tags:
+      - 音乐
+  /v1_0/music/author/list:
     get:
       parameters:
       - description: token
@@ -689,9 +814,98 @@ paths:
           description: OK
           schema:
             items:
+              $ref: '#/definitions/music_r.Playlist'
+            type: array
+      summary: 歌单列表
+      tags:
+      - 音乐
+  /v1_0/music/author/search:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 搜索内容
+        in: query
+        name: q
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/music_r.Playlist'
+            type: array
+      summary: 搜索歌手歌单
+      tags:
+      - 音乐
+  /v1_0/music/down:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 歌id
+        in: query
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/music_r.Music'
+      summary: 搜索
+      tags:
+      - 音乐
+  /v1_0/music/list:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 歌单id
+        in: query
+        name: playlistId
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
               $ref: '#/definitions/music_r.Music'
             type: array
       summary: 列表
+      tags:
+      - 音乐
+  /v1_0/music/search:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 搜索词
+        in: query
+        name: q
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/music_r.Music'
+            type: array
+      summary: 搜索
       tags:
       - 音乐
   /v1_0/user/profile:
@@ -731,4 +945,22 @@ paths:
       summary: 更新资料
       tags:
       - 用户
+  /v1_0/vap/vapc:
+    post:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: mp4
+        in: formData
+        name: mp4
+        required: true
+        type: string
+      responses:
+        "200": {}
+      summary: 获取vapc
+      tags:
+      - VAP
 swagger: "2.0"

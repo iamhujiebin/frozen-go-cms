@@ -17,7 +17,7 @@ type VapVapcReq struct {
 // @Summary 获取vapc
 // @Param Authorization header string true "token"
 // @Param mp4 formData string true "mp4"
-// @Success 200 {object} []Music
+// @Success 200
 // @Router /v1_0/vap/vapc [post]
 func VapVapc(c *gin.Context) (*mycontext.MyContext, error) {
 	myCtx := mycontext.CreateMyContext(c.Keys)

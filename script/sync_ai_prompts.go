@@ -64,15 +64,21 @@ func main() {
 	var resp []AiPromptData
 	json.Unmarshal(body, &resp)
 	model := domain.CreateModelNil()
+	idByCode := ai_m.GetIdByCode(model)
 	for _, v := range resp {
-		if err := ai_m.AddAiPrompt(model, ai_m.AiPrompt{
-			Zh:       v.Name.Zh,
-			En:       v.Name.En,
-			Level:    0,
-			ParentId: 0,
-			Code:     v.Code,
-		}); err != nil {
-			panic(err)
+		for _, v2 := range v.SubTabs {
+			parentId := idByCode[v2.Code]
+			for _, v3 := range v2.Prompts {
+				if err := ai_m.AddAiPrompt(model, ai_m.AiPrompt{
+					Zh:       v3.Zh,
+					En:       v3.En,
+					Level:    2,
+					ParentId: uint64(parentId),
+					Code:     v3.Code,
+				}); err != nil {
+					panic(err)
+				}
+			}
 		}
 	}
 }
