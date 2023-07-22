@@ -2,6 +2,7 @@ package ai_r
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"frozen-go-cms/domain/model/ai_m"
 	"frozen-go-cms/hilo-common/domain"
@@ -64,6 +65,10 @@ func GenImages(c *gin.Context) (*mycontext.MyContext, error) {
 	if err != nil {
 		return myCtx, err
 	}
+	status := 1
+	if len(genResp.Data) <= 0 {
+		status = 0
+	}
 	var images []string
 	for _, v := range genResp.Data {
 		images = append(images, v.URL)
@@ -82,15 +87,20 @@ func GenImages(c *gin.Context) (*mycontext.MyContext, error) {
 		Prompt:  param.Prompts,
 		Image1:  image1,
 		Image2:  image2,
-		Status:  1,
+		Status:  status,
 		Like:    0,
 		Payload: string(payload),
 	}
 	if err := ai_m.AddAiImage(model, response); err != nil {
 		return myCtx, err
 	}
-	go persistentImages(images, response.ID)
-	resp.ResponseOk(c, response)
+	// 有效的图片才下载
+	if status == 1 {
+		go persistentImages(images, response.ID)
+		resp.ResponseOk(c, response)
+	} else {
+		return myCtx, errors.New("gen fail,may hit sensitive word")
+	}
 	return myCtx, nil
 }
 
