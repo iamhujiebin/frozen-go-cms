@@ -96,6 +96,8 @@ func InitRouter() *gin.Engine {
 	ai.Use(JWTApiHandle)
 	{
 		ai.GET("prompts", wrapper(ai_r.Prompts))
+		ai.GET("images", wrapper(ai_r.Images))
+		ai.POST("images", wrapper(ai_r.GenImages))
 	}
 	return r
 }
