@@ -6,6 +6,7 @@ import (
 	"frozen-go-cms/domain/model/ai_m"
 	"frozen-go-cms/hilo-common/domain"
 	"frozen-go-cms/hilo-common/mycontext"
+	"frozen-go-cms/hilo-common/mylogrus"
 	"frozen-go-cms/hilo-common/resource/mysql"
 	"frozen-go-cms/resp"
 	"github.com/gin-gonic/gin"
@@ -149,6 +150,7 @@ func genImage(prompt string) (*GenImageResp, error) {
 	if err != nil {
 		return respo, err
 	}
+	mylogrus.MyLog.Infof("genImageBody:%v", string(body))
 	err = json.Unmarshal(body, respo)
 	return respo, err
 }
