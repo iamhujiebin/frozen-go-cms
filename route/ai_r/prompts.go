@@ -61,7 +61,7 @@ func GenImages(c *gin.Context) (*mycontext.MyContext, error) {
 		return myCtx, err
 	}
 	model := domain.CreateModelContext(myCtx)
-	genResp, err := genImage(param.Prompts)
+	genResp, payload, err := genImage(param.Prompts)
 	if err != nil {
 		return myCtx, err
 	}
@@ -82,14 +82,13 @@ func GenImages(c *gin.Context) (*mycontext.MyContext, error) {
 			image2 = genResp.Data[i].URL
 		}
 	}
-	payload, _ := json.Marshal(genResp)
 	response := &ai_m.AiImage{
 		Prompt:  param.Prompts,
 		Image1:  image1,
 		Image2:  image2,
 		Status:  status,
 		Like:    0,
-		Payload: string(payload),
+		Payload: payload,
 	}
 	if err := ai_m.AddAiImage(model, response); err != nil {
 		return myCtx, err
@@ -117,7 +116,7 @@ type GenImageResp struct {
 	} `json:"data"`
 }
 
-func genImage(prompt string) (*GenImageResp, error) {
+func genImage(prompt string) (*GenImageResp, string, error) {
 	// todo for coding
 	//r := &GenImageResp{Created: 0}
 	//r.Data = append(r.Data, struct {
@@ -143,7 +142,7 @@ func genImage(prompt string) (*GenImageResp, error) {
 	req, err := http.NewRequest(method, url, payload)
 
 	if err != nil {
-		return respo, err
+		return respo, "", err
 	}
 	token := os.Getenv("CHATGPT_TOKEN")
 
@@ -152,17 +151,17 @@ func genImage(prompt string) (*GenImageResp, error) {
 
 	res, err := client.Do(req)
 	if err != nil {
-		return respo, err
+		return respo, "", err
 	}
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return respo, err
+		return respo, "", err
 	}
 	mylogrus.MyLog.Infof("genImageBody:%v", string(body))
 	err = json.Unmarshal(body, respo)
-	return respo, err
+	return respo, string(body), err
 }
 
 func persistentImages(images []string, id mysql.ID) {
