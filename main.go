@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"frozen-go-cms/cron"
 	"frozen-go-cms/route"
 	"github.com/gin-gonic/gin"
 	"io"
@@ -24,6 +25,7 @@ const (
 )
 
 func main() {
+	cron.Init()
 	go static()                         // 静态服务器
 	go file()                           // 文件服务器
 	r := route.InitRouter()             // 注册路由
