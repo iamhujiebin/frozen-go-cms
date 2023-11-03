@@ -20,7 +20,7 @@ const (
 	PORT        = 7000
 	STATIC_PORT = 7001
 	FILE_PORT   = 7002
-	DOMAIN      = "http://47.244.34.27"
+	DOMAIN      = "http://43.128.31.213"
 	UPLOAD_PATH = "uploads/file"
 )
 
