@@ -5,10 +5,61 @@
         "license": {}
     },
     "paths": {
+        "/v1_0/ai/images": {
+            "get": {
+                "tags": [
+                    "AI"
+                ],
+                "summary": "获取所有ai生成的图片",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ai_m.AiImage"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "AI"
+                ],
+                "summary": "获取所有ai生成的图片",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ai_m.AiImage"
+                        }
+                    }
+                }
+            }
+        },
         "/v1_0/ai/prompts": {
             "get": {
                 "tags": [
-                    "AIPrompts"
+                    "AI"
                 ],
                 "summary": "获取所有提示词",
                 "parameters": [
@@ -1025,6 +1076,40 @@
         }
     },
     "definitions": {
+        "ai_m.AiImage": {
+            "type": "object",
+            "properties": {
+                "createdTime": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image1": {
+                    "description": "生成的图片1",
+                    "type": "string"
+                },
+                "image2": {
+                    "description": "生成的图片2",
+                    "type": "string"
+                },
+                "like": {
+                    "description": "是否喜欢 1:喜欢",
+                    "type": "integer"
+                },
+                "prompt": {
+                    "description": "提示词",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态 1:正常",
+                    "type": "integer"
+                },
+                "updatedTime": {
+                    "type": "string"
+                }
+            }
+        },
         "ai_m.AiPromptData": {
             "type": "object",
             "properties": {
@@ -1045,40 +1130,46 @@
                 "subTabs": {
                     "type": "array",
                     "items": {
-                        "type": "object",
-                        "properties": {
-                            "code": {
-                                "type": "string"
-                            },
-                            "name": {
-                                "type": "object",
-                                "properties": {
-                                    "en": {
-                                        "type": "string"
-                                    },
-                                    "zh": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "prompts": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "string"
-                                        },
-                                        "en": {
-                                            "type": "string"
-                                        },
-                                        "zh": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
+                        "$ref": "#/definitions/ai_m.AiSAubTab"
+                    }
+                }
+            }
+        },
+        "ai_m.AiPrompts": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "en": {
+                    "type": "string"
+                },
+                "zh": {
+                    "type": "string"
+                }
+            }
+        },
+        "ai_m.AiSAubTab": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "object",
+                    "properties": {
+                        "en": {
+                            "type": "string"
+                        },
+                        "zh": {
+                            "type": "string"
                         }
+                    }
+                },
+                "prompts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ai_m.AiPrompts"
                     }
                 }
             }

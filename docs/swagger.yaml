@@ -1,4 +1,28 @@
 definitions:
+  ai_m.AiImage:
+    properties:
+      createdTime:
+        type: string
+      id:
+        type: integer
+      image1:
+        description: 生成的图片1
+        type: string
+      image2:
+        description: 生成的图片2
+        type: string
+      like:
+        description: 是否喜欢 1:喜欢
+        type: integer
+      prompt:
+        description: 提示词
+        type: string
+      status:
+        description: 状态 1:正常
+        type: integer
+      updatedTime:
+        type: string
+    type: object
   ai_m.AiPromptData:
     properties:
       code:
@@ -12,28 +36,32 @@ definitions:
         type: object
       subTabs:
         items:
-          properties:
-            code:
-              type: string
-            name:
-              properties:
-                en:
-                  type: string
-                zh:
-                  type: string
-              type: object
-            prompts:
-              items:
-                properties:
-                  code:
-                    type: string
-                  en:
-                    type: string
-                  zh:
-                    type: string
-                type: object
-              type: array
-          type: object
+          $ref: '#/definitions/ai_m.AiSAubTab'
+        type: array
+    type: object
+  ai_m.AiPrompts:
+    properties:
+      code:
+        type: string
+      en:
+        type: string
+      zh:
+        type: string
+    type: object
+  ai_m.AiSAubTab:
+    properties:
+      code:
+        type: string
+      name:
+        properties:
+          en:
+            type: string
+          zh:
+            type: string
+        type: object
+      prompts:
+        items:
+          $ref: '#/definitions/ai_m.AiPrompts'
         type: array
     type: object
   album_r.ProcessReq:
@@ -297,6 +325,39 @@ info:
   contact: {}
   license: {}
 paths:
+  /v1_0/ai/images:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/ai_m.AiImage'
+            type: array
+      summary: 获取所有ai生成的图片
+      tags:
+      - AI
+    post:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ai_m.AiImage'
+      summary: 获取所有ai生成的图片
+      tags:
+      - AI
   /v1_0/ai/prompts:
     get:
       parameters:
@@ -314,7 +375,7 @@ paths:
             type: array
       summary: 获取所有提示词
       tags:
-      - AIPrompts
+      - AI
   /v1_0/album/add:
     post:
       parameters:
