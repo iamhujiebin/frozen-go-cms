@@ -192,7 +192,7 @@ func persistentImages(images []string, id mysql.ID) {
 const (
 	UPLOAD_PATH = "uploads/file"
 	FILE_PORT   = 7002
-	DOMAIN      = "http://47.244.34.27"
+	DOMAIN      = "http://43.128.31.213"
 )
 
 func downloadImage(url string) (string, error) {
