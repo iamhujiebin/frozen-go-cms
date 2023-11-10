@@ -1,6 +1,6 @@
 module frozen-go-cms
 
-go 1.17
+go 1.19
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect

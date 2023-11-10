@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"frozen-go-cms/hilo-common/mycontext"
+	"frozen-go-cms/common/mycontext"
 	"github.com/go-redis/redis/v8"
 	"gorm.io/gorm"
 )

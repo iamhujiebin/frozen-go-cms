@@ -1,9 +1,9 @@
 package domain
 
 import (
-	"frozen-go-cms/hilo-common/mycontext"
-	"frozen-go-cms/hilo-common/resource/mysql"
-	"frozen-go-cms/hilo-common/resource/redisCli"
+	"frozen-go-cms/common/mycontext"
+	"frozen-go-cms/common/resource/mysql"
+	"frozen-go-cms/common/resource/redisCli"
 	"runtime/debug"
 )
 
@@ -36,7 +36,7 @@ func CreateService(myContext *mycontext.MyContext) *Service {
 	}
 }
 
-//事务钩子回调，遇到错误，异常则回调，写service都需要钩子回调
+// 事务钩子回调，遇到错误，异常则回调，写service都需要钩子回调
 func (service *Service) Transactional(callback func() error) error {
 	//异常回调
 	defer func() {

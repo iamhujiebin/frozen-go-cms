@@ -1,9 +1,9 @@
 package channel_r
 
 import (
+	"frozen-go-cms/common/domain"
+	"frozen-go-cms/common/mycontext"
 	"frozen-go-cms/domain/model/channel_m"
-	"frozen-go-cms/hilo-common/domain"
-	"frozen-go-cms/hilo-common/mycontext"
 	"frozen-go-cms/resp"
 	"github.com/gin-gonic/gin"
 )

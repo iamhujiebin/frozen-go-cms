@@ -2,8 +2,8 @@ package redisCli
 
 import (
 	"context"
-	"frozen-go-cms/hilo-common/mylogrus"
-	"frozen-go-cms/hilo-common/resource/config"
+	"frozen-go-cms/common/mylogrus"
+	"frozen-go-cms/common/resource/config"
 	"github.com/go-redis/redis/v8"
 )
 

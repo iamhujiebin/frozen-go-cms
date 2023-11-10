@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"frozen-go-cms/hilo-common/mylogrus"
+	"frozen-go-cms/common/mylogrus"
 	"runtime/debug"
 )
 

@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"frozen-go-cms/hilo-common/resource/config"
+	"frozen-go-cms/common/resource/config"
 	"strings"
 )
 

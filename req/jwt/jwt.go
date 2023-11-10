@@ -1,7 +1,7 @@
 package jwt
 
 import (
-	"frozen-go-cms/hilo-common/resource/config"
+	"frozen-go-cms/common/resource/config"
 	"github.com/dgrijalva/jwt-go"
 	"time"
 )
@@ -13,7 +13,7 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-//生成token
+// 生成token
 func GenerateToken(userId uint64, mobile, issuer string) (string, error) {
 	jwtConfig := config.GetConfigJWT()
 	duration, err := time.ParseDuration(jwtConfig.EXPIRE)
@@ -39,7 +39,7 @@ func GetJWTSecret() []byte {
 	return []byte(config.GetConfigJWT().SECRET)
 }
 
-//解析token
+// 解析token
 func ParseToken(token string) (*Claims, error) {
 	tokenClaims, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return GetJWTSecret(), nil

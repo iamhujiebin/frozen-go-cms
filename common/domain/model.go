@@ -2,9 +2,9 @@ package domain
 
 import (
 	"fmt"
-	"frozen-go-cms/hilo-common/mycontext"
-	"frozen-go-cms/hilo-common/resource/mysql"
-	"frozen-go-cms/hilo-common/resource/redisCli"
+	"frozen-go-cms/common/mycontext"
+	"frozen-go-cms/common/resource/mysql"
+	"frozen-go-cms/common/resource/redisCli"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"time"
@@ -42,7 +42,7 @@ func (m *Model) DB() *gorm.DB {
 	return m.Db.WithContext(m)
 }
 
-//获取traceid
+// 获取traceid
 func (m *Model) GetTraceId() string {
 	if traceIdTemp, ok := m.Cxt[mycontext.TRACEID]; ok {
 		if traceId, ok := traceIdTemp.(string); ok {

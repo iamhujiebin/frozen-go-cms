@@ -2,8 +2,8 @@ package mysql
 
 import (
 	"fmt"
-	"frozen-go-cms/hilo-common/mylogrus"
-	"frozen-go-cms/hilo-common/resource/config"
+	"frozen-go-cms/common/mylogrus"
+	"frozen-go-cms/common/resource/config"
 	_ "github.com/go-sql-driver/mysql" //加载mysql驱动
 	_ "github.com/joho/godotenv/autoload"
 	"gorm.io/driver/mysql"

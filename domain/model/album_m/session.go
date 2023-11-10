@@ -1,8 +1,8 @@
 package album_m
 
 import (
-	"frozen-go-cms/hilo-common/domain"
-	"frozen-go-cms/hilo-common/resource/mysql"
+	"frozen-go-cms/common/domain"
+	"frozen-go-cms/common/resource/mysql"
 	"gorm.io/gorm/clause"
 )
 

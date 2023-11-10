@@ -2,12 +2,12 @@ package myerr
 
 import (
 	"fmt"
-	"frozen-go-cms/hilo-common/mylogrus"
+	"frozen-go-cms/common/mylogrus"
 	"github.com/pkg/errors"
 	"strconv"
 )
 
-//业务错误
+// 业务错误
 type BusinessError struct {
 	code    uint16
 	message string
@@ -37,7 +37,7 @@ func (err *BusinessError) GetData() BusinessData {
 
 var codes = map[uint16]string{}
 
-//定义必须是明确的。不可以修改，字段等同于翻译中要替换的字符
+// 定义必须是明确的。不可以修改，字段等同于翻译中要替换的字符
 type BusinessData struct {
 	//剩余秒
 	Second int `json:"second"`

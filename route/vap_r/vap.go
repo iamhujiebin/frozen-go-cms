@@ -2,7 +2,7 @@ package vap_r
 
 import (
 	"bytes"
-	"frozen-go-cms/hilo-common/mycontext"
+	"frozen-go-cms/common/mycontext"
 	"github.com/abema/go-mp4"
 	"github.com/gin-gonic/gin"
 	"io"

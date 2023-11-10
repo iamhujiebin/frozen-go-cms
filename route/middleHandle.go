@@ -1,9 +1,9 @@
 package route
 
 import (
-	"frozen-go-cms/hilo-common/mycontext"
-	"frozen-go-cms/hilo-common/mylogrus"
-	"frozen-go-cms/hilo-common/resource/config"
+	"frozen-go-cms/common/mycontext"
+	"frozen-go-cms/common/mylogrus"
+	"frozen-go-cms/common/resource/config"
 	"frozen-go-cms/req/jwt"
 	"frozen-go-cms/resp"
 	"github.com/gin-gonic/gin"
@@ -34,7 +34,7 @@ func LoggerHandle(c *gin.Context) {
 	c.Next()
 }
 
-//jwt解密
+// jwt解密
 func JWTApiHandle(c *gin.Context) {
 	logger := mylogrus.MyLog.WithField("URL", c.Request.URL).WithField("METHOD", c.Request.Method)
 	token := c.GetHeader("Authorization")

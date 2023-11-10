@@ -2,7 +2,7 @@ package mycontext
 
 import (
 	"context"
-	"frozen-go-cms/hilo-common/mylogrus"
+	"frozen-go-cms/common/mylogrus"
 	"github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
 	"strconv"

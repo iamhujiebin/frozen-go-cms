@@ -1,6 +1,6 @@
 package domain
 
-import "frozen-go-cms/hilo-common/utils"
+import "frozen-go-cms/common/utils"
 
 //异步执行的接口-老方式-废弃
 //type AsyncEvent interface {

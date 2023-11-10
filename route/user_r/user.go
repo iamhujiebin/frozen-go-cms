@@ -3,10 +3,10 @@ package user_r
 import (
 	"fmt"
 	"frozen-go-cms/_const/enum/user_e"
+	"frozen-go-cms/common/domain"
+	"frozen-go-cms/common/mycontext"
+	"frozen-go-cms/common/resource/config"
 	"frozen-go-cms/domain/model/user_m"
-	"frozen-go-cms/hilo-common/domain"
-	"frozen-go-cms/hilo-common/mycontext"
-	"frozen-go-cms/hilo-common/resource/config"
 	"frozen-go-cms/myerr/bizerr"
 	"frozen-go-cms/req"
 	"frozen-go-cms/req/jwt"

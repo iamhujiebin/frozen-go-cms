@@ -3,8 +3,8 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"frozen-go-cms/hilo-common/resource/config"
-	"frozen-go-cms/hilo-common/resource/mysql"
+	"frozen-go-cms/common/resource/config"
+	"frozen-go-cms/common/resource/mysql"
 	"strconv"
 	"strings"
 	"time"
@@ -64,7 +64,7 @@ func BirthdayToUint64(birthday *mysql.Timestamp) *uint64 {
 	return (*uint64)(birthday)
 }
 
-//空字符串转成nil
+// 空字符串转成nil
 func StrNil(msg string) *string {
 	if msg == "" {
 		return nil

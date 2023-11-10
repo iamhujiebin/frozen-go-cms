@@ -2,12 +2,12 @@ package myerr
 
 import (
 	"fmt"
-	"frozen-go-cms/hilo-common/mylogrus"
+	"frozen-go-cms/common/mylogrus"
 	"github.com/pkg/errors"
 	"strconv"
 )
 
-//成功
+// 成功
 type Success struct {
 	code    uint16
 	message string
@@ -17,7 +17,7 @@ func (err *Success) Error() string {
 	return err.message
 }
 
-//正确的标识符
+// 正确的标识符
 var success = &Success{code: 200, message: "OK"}
 
 func GetSuccessCode() uint16 {
@@ -32,7 +32,7 @@ func GetSuccess() Success {
 	return *success
 }
 
-//系统错误
+// 系统错误
 type SysError struct {
 	code    uint16
 	message string
@@ -76,7 +76,7 @@ func (sysError *SysError) GetMsg() string {
 	return sysError.message
 }
 
-//警告错误
+// 警告错误
 type WaringError struct {
 	code    uint16
 	message string
@@ -120,7 +120,7 @@ func (err *WaringError) GetMsg() string {
 	return err.message
 }
 
-//业务错误
+// 业务错误
 type BusinessError struct {
 	code    uint16
 	message string
@@ -150,7 +150,7 @@ func (err *BusinessError) GetData() BusinessData {
 
 var codes = map[uint16]string{}
 
-//定义必须是明确的。不可以修改，字段等同于翻译中要替换的字符
+// 定义必须是明确的。不可以修改，字段等同于翻译中要替换的字符
 type BusinessData struct {
 	//剩余秒
 	Second int `json:"second"`
@@ -194,7 +194,7 @@ func NewBusinessCodeNoCheck(code uint16, msg string, data BusinessData) *Busines
 	}
 }
 
-//包装日志，让日志成堆栈状态
+// 包装日志，让日志成堆栈状态
 func WrapErrWithStr(err error, msg string) error {
 	if h, ok := err.(*BusinessError); ok {
 		h.err = errors.Wrap(h.err, msg)

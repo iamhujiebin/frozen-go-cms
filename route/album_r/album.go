@@ -2,9 +2,9 @@ package album_r
 
 import (
 	"encoding/json"
+	"frozen-go-cms/common/domain"
+	"frozen-go-cms/common/mycontext"
 	"frozen-go-cms/domain/model/album_m"
-	"frozen-go-cms/hilo-common/domain"
-	"frozen-go-cms/hilo-common/mycontext"
 	"frozen-go-cms/req"
 	"frozen-go-cms/resp"
 	"github.com/gin-gonic/gin"

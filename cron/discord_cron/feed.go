@@ -2,8 +2,8 @@ package discord_cron
 
 import (
 	"encoding/json"
+	"frozen-go-cms/common/domain"
 	"frozen-go-cms/domain/model/discord_m"
-	"frozen-go-cms/hilo-common/domain"
 	"github.com/robfig/cron"
 	"io/ioutil"
 	"net/http"

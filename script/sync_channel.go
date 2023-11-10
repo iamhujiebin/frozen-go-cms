@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"frozen-go-cms/common/domain"
+	"frozen-go-cms/common/resource/mysql"
 	"frozen-go-cms/domain/model/channel_m"
-	"frozen-go-cms/hilo-common/domain"
-	"frozen-go-cms/hilo-common/resource/mysql"
 	"io/ioutil"
 	"net/http"
 )

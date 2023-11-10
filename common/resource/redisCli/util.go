@@ -2,12 +2,12 @@ package redisCli
 
 import (
 	"context"
-	"frozen-go-cms/hilo-common/mylogrus"
+	"frozen-go-cms/common/mylogrus"
 	"github.com/go-redis/redis/v8"
 	"time"
 )
 
-//这个用户避免多个服务器并发问题。
+// 这个用户避免多个服务器并发问题。
 func SetNX(key string, value interface{}, expiration time.Duration, callBack func()) {
 	flag, err := RedisClient.SetNX(context.Background(), key, value, expiration).Result()
 	if err != nil {

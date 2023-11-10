@@ -1,7 +1,7 @@
 package route
 
 import (
-	"frozen-go-cms/hilo-common/mycontext"
+	"frozen-go-cms/common/mycontext"
 	"frozen-go-cms/resp"
 	"github.com/gin-gonic/gin"
 )

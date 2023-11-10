@@ -1,7 +1,7 @@
 package config
 
 import (
-	"frozen-go-cms/hilo-common/mylogrus"
+	"frozen-go-cms/common/mylogrus"
 	"github.com/joho/godotenv"
 	"gopkg.in/ini.v1"
 	"os"
@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-//数据库的配置
+// 数据库的配置
 type MysqlConfig struct {
 	MYSQL_HOST     string
 	MYSQL_USERNAME string
@@ -24,13 +24,13 @@ type MysqlCodeConfig struct {
 	MYSQL_DB       string
 }
 
-//redis配置
+// redis配置
 type RedisConfig struct {
 	REDIS_HOST     string
 	REDIS_PASSWORD string
 }
 
-//jwt
+// jwt
 type JwtConfig struct {
 	SECRET     string
 	ISSUER_API string
@@ -38,7 +38,7 @@ type JwtConfig struct {
 	EXPIRE     string
 }
 
-//jwt
+// jwt
 type GameJwtConfig struct {
 	SECRET        string
 	ISSUER_CLIENT string
@@ -46,7 +46,7 @@ type GameJwtConfig struct {
 	EXPIRE        string
 }
 
-//oss
+// oss
 type OssConfig struct {
 	OSS_ACCESS_KEY_ID     string
 	OSS_ACCESS_KEY_SECRET string
@@ -68,7 +68,7 @@ type AwsConfig struct {
 	CONFIDENCE float32
 }
 
-//APP
+// APP
 type AppConfig struct {
 	BIZ_SECRET              string
 	WEB_SECRET              string
@@ -80,19 +80,19 @@ type AppConfig struct {
 	MODERATE                string
 }
 
-//googlePay 配置信息
+// googlePay 配置信息
 type GooglePayConfig struct {
 	JsonKey []byte
 }
 
-//融云
+// 融云
 type RongyunConfig struct {
 	RONG_CLOUD_APP_KEY    string
 	RONG_CLOUD_APP_SECRET string
 	RONG_CLOUD_URL        string
 }
 
-//腾讯云
+// 腾讯云
 type TencentyunConfig struct {
 	TENCENTYUN_APP_ID int
 	TENCENTYUN_KEY    string
@@ -100,7 +100,7 @@ type TencentyunConfig struct {
 	TX_OVERSEA_KEY    string
 }
 
-//emas
+// emas
 type EmasConfig struct {
 	ANDROID_APP_KEY    string
 	ANDROID_APP_SECRET string
@@ -112,7 +112,7 @@ type EmasConfig struct {
 	APNS               string
 }
 
-//声网
+// 声网
 type AgoraConfig struct {
 	APP_ID          string
 	APP_CERTIFICATE string
@@ -120,13 +120,13 @@ type AgoraConfig struct {
 	CUSTOMER_SECRET string
 }
 
-//腾讯TRTC
+// 腾讯TRTC
 type TRTCConfig struct {
 	APP_ID          int
 	APP_CERTIFICATE string
 }
 
-//匹配的配置
+// 匹配的配置
 type MatchConfig struct {
 	//一开始匹配的默认时长（单位：秒）
 	MATCH_FREE_TIME int
@@ -148,7 +148,7 @@ type MatchConfig struct {
 	MATCH_SUCCESS_DUAL_WAIT_TIME_IN_SEC uint32
 }
 
-//在线
+// 在线
 type OnlineConfig struct {
 	//在线周期
 	ONLINE_CYCLE int
@@ -156,7 +156,7 @@ type OnlineConfig struct {
 	ONLINE_USER_EXPIRES int
 }
 
-//1对1视频
+// 1对1视频
 type VideoConfig struct {
 	VIDEO_DAILY_FREE_NUM int
 	//一开始匹配的默认时长（单位：秒）
@@ -173,7 +173,7 @@ type VideoConfig struct {
 	VIDEO_MINUTE_UNION int
 }
 
-//会话
+// 会话
 type SessionConfig struct {
 	SESSION_DAILY_FREE_NUM int
 	GUILD_USER_HELLO_DAY   int
@@ -256,7 +256,7 @@ type LuckWheelConfig struct {
 	WINNER_DIAMOND_BANNER int //全服广播钻石门槛
 }
 
-//自定义主题
+// 自定义主题
 type GroupCustomThemeConfig struct {
 	PIC_LIMIT int //图片数量
 	DAY       int //有效天数
