@@ -51,6 +51,11 @@ func UnixTimeConverter(unixTime int64) string {
 	return fmt.Sprintf("%s", value)
 }
 
+func DateTimeConverter(date string) int64 {
+	value, _ := time.Parse("2006-01-02 15:04:05", date)
+	return value.Unix()
+}
+
 const minLength float32 = 60
 const hourLength = minLength * 60
 const dayLength = hourLength * 24

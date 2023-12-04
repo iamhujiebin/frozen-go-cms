@@ -13,6 +13,7 @@ func main() {
 	global := js.Global()
 	global.Set("wasmHumanReadableTimediff", js.FuncOf(humanReadableTimediff))
 	global.Set("wasmUnixTimeConverter", js.FuncOf(unixTimeConverter))
+	global.Set("wasmDateTimeConverter", js.FuncOf(dateTimeConverter))
 	global.Set("wasmEncodeDecode", js.FuncOf(encodeDecode))
 	global.Set("wasmGenerateQRCode", js.FuncOf(generateQRCode))
 	<-done
@@ -41,6 +42,14 @@ func unixTimeConverter(this js.Value, args []js.Value) interface{} {
 	}
 	unixTime := int64(args[0].Int())
 	return tools.UnixTimeConverter(unixTime)
+}
+
+func dateTimeConverter(this js.Value, args []js.Value) interface{} {
+	if len(args) != 1 {
+		return "ERROR: number of arguments doesn't match"
+	}
+	dateTime := args[0].String()
+	return tools.DateTimeConverter(dateTime)
 }
 
 func humanReadableTimediff(this js.Value, args []js.Value) interface{} {
