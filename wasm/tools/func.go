@@ -51,8 +51,10 @@ func UnixTimeConverter(unixTime int64) string {
 	return fmt.Sprintf("%s", value)
 }
 
+var BeijingTimezoneLoc = time.FixedZone("CST", 8*3600) // 东八
+
 func DateTimeConverter(date string) int64 {
-	value, _ := time.Parse("2006-01-02 15:04:05", date)
+	value, _ := time.ParseInLocation("2006-01-02 15:04:05", date, BeijingTimezoneLoc)
 	return value.Unix()
 }
 
