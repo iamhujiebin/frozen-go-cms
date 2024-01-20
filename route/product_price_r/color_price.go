@@ -18,6 +18,7 @@ type ColorPriceGetReq struct {
 }
 
 type ColorPrice struct {
+	Id                  uint64  `json:"id"`                     //  id
 	ColorName           string  `json:"color_name"`             //  名称
 	ColorCode           string  `json:"color_code"`             //  代号
 	PrintStartNum       int64   `json:"print_start_num"`        //  印刷开始数量
