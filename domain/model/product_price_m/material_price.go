@@ -32,3 +32,25 @@ func (MaterialPrice) TableName() string {
 func CreateMaterialPrice(model *domain.Model, material MaterialPrice) error {
 	return model.DB().Create(&material).Error
 }
+
+// 分页获取材料价格
+func PageMaterialPrice(model *domain.Model, offset, limit int) ([]MaterialPrice, int64) {
+	var res []MaterialPrice
+	var total int64
+	if err := model.DB().Model(MaterialPrice{}).Where("status = 1").
+		Count(&total).
+		Offset(offset).Limit(limit).Find(&res).Error; err != nil {
+		model.Log.Errorf("PageMaterialPrice fail:%v", err)
+	}
+	return res, total
+}
+
+// 更新材料价格
+func UpdateMaterialPrice(model *domain.Model, id mysql.ID, updates map[string]interface{}) error {
+	return model.DB().Table(MaterialPrice{}.TableName()).Where("id = ?", id).Updates(updates).Error
+}
+
+// 删除材料价格
+func DeleteMaterialPrice(model *domain.Model, id mysql.ID) error {
+	return model.DB().Table(MaterialPrice{}.TableName()).Where("id = ?", id).UpdateColumn("status", 0).Error
+}
