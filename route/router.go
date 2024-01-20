@@ -8,6 +8,7 @@ import (
 	"frozen-go-cms/route/channel_r"
 	"frozen-go-cms/route/chatgpt_r"
 	"frozen-go-cms/route/music_r"
+	"frozen-go-cms/route/product_price_r"
 	"frozen-go-cms/route/todo_r"
 	"frozen-go-cms/route/user_r"
 	"frozen-go-cms/route/vap_r"
@@ -98,6 +99,11 @@ func InitRouter() *gin.Engine {
 		ai.GET("prompts", wrapper(ai_r.Prompts))
 		ai.GET("images", wrapper(ai_r.Images))
 		ai.POST("images", wrapper(ai_r.GenImages))
+	}
+	productPrice := v1.Group("productPrice")
+	{
+		productPrice.GET("/system/config", wrapper(product_price_r.SystemConfigGet))
+		productPrice.PUT("/system/config", wrapper(product_price_r.SystemConfigPut))
 	}
 	return r
 }

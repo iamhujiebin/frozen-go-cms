@@ -22,6 +22,15 @@ func (SystemConfig) TableName() string {
 }
 
 // 更新系统配置
-func UpdateSystemConfig(model *domain.Model, config SystemConfig) error {
-	return model.DB().Save(&config).Error
+func UpdateSystemConfig(model *domain.Model, updates map[string]interface{}) error {
+	return model.DB().Table(SystemConfig{}.TableName()).Where("id = 1").Updates(updates).Error
+}
+
+// 获取系统配置
+func GetSystemConfig(model *domain.Model) SystemConfig {
+	var conf SystemConfig
+	if err := model.DB().Model(SystemConfig{}).First(&conf).Error; err != nil {
+		model.Log.Errorf("GetSystemConfig fail:%v", err)
+	}
+	return conf
 }
