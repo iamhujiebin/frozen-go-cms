@@ -121,6 +121,10 @@ func InitRouter() *gin.Engine {
 		productPrice.POST("/material", wrapper(product_price_r.MaterialPricePost))
 		productPrice.DELETE("/material/:id", wrapper(product_price_r.MaterialPriceDelete))
 		// 规格尺寸
+		productPrice.GET("/size", wrapper(product_price_r.SizeConfigGet))
+		productPrice.PUT("/size/:id", wrapper(product_price_r.SizeConfigPut))
+		productPrice.POST("/size", wrapper(product_price_r.SizeConfigPost))
+		productPrice.DELETE("/size/:id", wrapper(product_price_r.SizeConfigDelete))
 	}
 	return r
 }

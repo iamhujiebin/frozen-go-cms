@@ -37,3 +37,25 @@ func (SizeConfig) TableName() string {
 func CreateSizeConfig(model *domain.Model, size SizeConfig) error {
 	return model.DB().Create(&size).Error
 }
+
+// 分页获取规格尺寸
+func PageSizeConfig(model *domain.Model, offset, limit int) ([]SizeConfig, int64) {
+	var res []SizeConfig
+	var total int64
+	if err := model.DB().Model(SizeConfig{}).Where("status = 1").
+		Count(&total).
+		Offset(offset).Limit(limit).Find(&res).Error; err != nil {
+		model.Log.Errorf("PageSizeConfig fail:%v", err)
+	}
+	return res, total
+}
+
+// 更新规格尺寸
+func UpdateSizeConfig(model *domain.Model, id mysql.ID, updates map[string]interface{}) error {
+	return model.DB().Table(SizeConfig{}.TableName()).Where("id = ?", id).Updates(updates).Error
+}
+
+// 删除规格尺寸
+func DeleteSizeConfig(model *domain.Model, id mysql.ID) error {
+	return model.DB().Table(SizeConfig{}.TableName()).Where("id = ?", id).UpdateColumn("status", 0).Error
+}
