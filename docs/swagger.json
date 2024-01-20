@@ -990,6 +990,179 @@
                 }
             }
         },
+        "/v1_0/productPrice/color": {
+            "get": {
+                "tags": [
+                    "报价系统"
+                ],
+                "summary": "获取印刷价格",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page_index",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页数",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/product_price_r.ColorPrice"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "报价系统"
+                ],
+                "summary": "新增印刷价格",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "请求体",
+                        "name": "ColorPriceAdd",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/product_price_r.ColorPriceAdd"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/v1_0/productPrice/color/:id": {
+            "put": {
+                "tags": [
+                    "报价系统"
+                ],
+                "summary": "更新印刷价格",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "请求体",
+                        "name": "ColorPriceUpdate",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/product_price_r.ColorPriceUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            },
+            "delete": {
+                "tags": [
+                    "报价系统"
+                ],
+                "summary": "删除印刷价格",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "请求体",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/v1_0/productPrice/system/config": {
+            "get": {
+                "tags": [
+                    "报价系统"
+                ],
+                "summary": "获取系统配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/product_price_r.SystemConfig"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "报价系统"
+                ],
+                "summary": "更新系统配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "请求体",
+                        "name": "SystemConfigUpdate",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/product_price_r.SystemConfigUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
         "/v1_0/user/profile": {
             "get": {
                 "tags": [
@@ -1452,6 +1625,395 @@
                 },
                 "pic": {
                     "type": "string"
+                }
+            }
+        },
+        "product_price_r.ColorPrice": {
+            "type": "object",
+            "properties": {
+                "box": {
+                    "description": "盒子",
+                    "type": "integer"
+                },
+                "card": {
+                    "description": "卡片",
+                    "type": "integer"
+                },
+                "color_code": {
+                    "description": "代号",
+                    "type": "string"
+                },
+                "color_name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "create_ip": {
+                    "description": "创建用户ip",
+                    "type": "string"
+                },
+                "create_user": {
+                    "description": "创建用户",
+                    "type": "string"
+                },
+                "created_time": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "index": {
+                    "description": "序号",
+                    "type": "integer"
+                },
+                "page_cover": {
+                    "description": "封面",
+                    "type": "integer"
+                },
+                "page_inner": {
+                    "description": "内页",
+                    "type": "integer"
+                },
+                "page_tag": {
+                    "description": "tag页",
+                    "type": "integer"
+                },
+                "print_base_num": {
+                    "description": "印刷基数",
+                    "type": "integer"
+                },
+                "print_base_num2": {
+                    "description": "相同印刷基数",
+                    "type": "integer"
+                },
+                "print_base_price": {
+                    "description": "印刷基数价格",
+                    "type": "number"
+                },
+                "print_base_price2": {
+                    "description": "相同印刷基数价格",
+                    "type": "number"
+                },
+                "print_between_add_num": {
+                    "description": "印刷损耗间隔增加数量",
+                    "type": "integer"
+                },
+                "print_between_add_num2": {
+                    "description": "相同印刷损耗间隔增加数量",
+                    "type": "integer"
+                },
+                "print_between_num": {
+                    "description": "印刷损耗间隔数量",
+                    "type": "integer"
+                },
+                "print_between_num2": {
+                    "description": "相同印刷损耗间隔数量",
+                    "type": "integer"
+                },
+                "print_low_num": {
+                    "description": "印刷损耗开始增加数量",
+                    "type": "integer"
+                },
+                "print_low_num2": {
+                    "description": "相同印刷损耗开始增加数量",
+                    "type": "integer"
+                },
+                "print_low_sum_num": {
+                    "description": "印刷损耗开始数量",
+                    "type": "integer"
+                },
+                "print_low_sum_num2": {
+                    "description": "相同印刷损耗开始数量",
+                    "type": "integer"
+                },
+                "print_start_num": {
+                    "description": "印刷开始数量",
+                    "type": "integer"
+                },
+                "print_start_num2": {
+                    "description": "相同印刷开始数量",
+                    "type": "integer"
+                },
+                "print_start_price": {
+                    "description": "印刷开始价格",
+                    "type": "number"
+                },
+                "print_start_price2": {
+                    "description": "相同印刷开始价格",
+                    "type": "number"
+                },
+                "update_user": {
+                    "description": "更新用户",
+                    "type": "string"
+                },
+                "updated_time": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "product_price_r.ColorPriceAdd": {
+            "type": "object",
+            "properties": {
+                "box": {
+                    "description": "盒子",
+                    "type": "integer"
+                },
+                "card": {
+                    "description": "卡片",
+                    "type": "integer"
+                },
+                "color_code": {
+                    "description": "代号",
+                    "type": "string"
+                },
+                "color_name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "page_cover": {
+                    "description": "封面",
+                    "type": "integer"
+                },
+                "page_inner": {
+                    "description": "内页",
+                    "type": "integer"
+                },
+                "page_tag": {
+                    "description": "tag页",
+                    "type": "integer"
+                },
+                "print_base_num": {
+                    "description": "印刷基数",
+                    "type": "integer"
+                },
+                "print_base_num2": {
+                    "description": "相同印刷基数",
+                    "type": "integer"
+                },
+                "print_base_price": {
+                    "description": "印刷基数价格",
+                    "type": "number"
+                },
+                "print_base_price2": {
+                    "description": "相同印刷基数价格",
+                    "type": "number"
+                },
+                "print_between_add_num": {
+                    "description": "印刷损耗间隔增加数量",
+                    "type": "integer"
+                },
+                "print_between_add_num2": {
+                    "description": "相同印刷损耗间隔增加数量",
+                    "type": "integer"
+                },
+                "print_between_num": {
+                    "description": "印刷损耗间隔数量",
+                    "type": "integer"
+                },
+                "print_between_num2": {
+                    "description": "相同印刷损耗间隔数量",
+                    "type": "integer"
+                },
+                "print_low_num": {
+                    "description": "印刷损耗开始增加数量",
+                    "type": "integer"
+                },
+                "print_low_num2": {
+                    "description": "相同印刷损耗开始增加数量",
+                    "type": "integer"
+                },
+                "print_low_sum_num": {
+                    "description": "印刷损耗开始数量",
+                    "type": "integer"
+                },
+                "print_low_sum_num2": {
+                    "description": "相同印刷损耗开始数量",
+                    "type": "integer"
+                },
+                "print_start_num": {
+                    "description": "印刷开始数量",
+                    "type": "integer"
+                },
+                "print_start_num2": {
+                    "description": "相同印刷开始数量",
+                    "type": "integer"
+                },
+                "print_start_price": {
+                    "description": "印刷开始价格",
+                    "type": "number"
+                },
+                "print_start_price2": {
+                    "description": "相同印刷开始价格",
+                    "type": "number"
+                }
+            }
+        },
+        "product_price_r.ColorPriceUpdate": {
+            "type": "object",
+            "properties": {
+                "box": {
+                    "description": "盒子",
+                    "type": "integer"
+                },
+                "card": {
+                    "description": "卡片",
+                    "type": "integer"
+                },
+                "color_code": {
+                    "description": "代号",
+                    "type": "string"
+                },
+                "color_name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "page_cover": {
+                    "description": "封面",
+                    "type": "integer"
+                },
+                "page_inner": {
+                    "description": "内页",
+                    "type": "integer"
+                },
+                "page_tag": {
+                    "description": "tag页",
+                    "type": "integer"
+                },
+                "print_base_num": {
+                    "description": "印刷基数",
+                    "type": "integer"
+                },
+                "print_base_num2": {
+                    "description": "相同印刷基数",
+                    "type": "integer"
+                },
+                "print_base_price": {
+                    "description": "印刷基数价格",
+                    "type": "number"
+                },
+                "print_base_price2": {
+                    "description": "相同印刷基数价格",
+                    "type": "number"
+                },
+                "print_between_add_num": {
+                    "description": "印刷损耗间隔增加数量",
+                    "type": "integer"
+                },
+                "print_between_add_num2": {
+                    "description": "相同印刷损耗间隔增加数量",
+                    "type": "integer"
+                },
+                "print_between_num": {
+                    "description": "印刷损耗间隔数量",
+                    "type": "integer"
+                },
+                "print_between_num2": {
+                    "description": "相同印刷损耗间隔数量",
+                    "type": "integer"
+                },
+                "print_low_num": {
+                    "description": "印刷损耗开始增加数量",
+                    "type": "integer"
+                },
+                "print_low_num2": {
+                    "description": "相同印刷损耗开始增加数量",
+                    "type": "integer"
+                },
+                "print_low_sum_num": {
+                    "description": "印刷损耗开始数量",
+                    "type": "integer"
+                },
+                "print_low_sum_num2": {
+                    "description": "相同印刷损耗开始数量",
+                    "type": "integer"
+                },
+                "print_start_num": {
+                    "description": "印刷开始数量",
+                    "type": "integer"
+                },
+                "print_start_num2": {
+                    "description": "相同印刷开始数量",
+                    "type": "integer"
+                },
+                "print_start_price": {
+                    "description": "印刷开始价格",
+                    "type": "number"
+                },
+                "print_start_price2": {
+                    "description": "相同印刷开始价格",
+                    "type": "number"
+                }
+            }
+        },
+        "product_price_r.SystemConfig": {
+            "type": "object",
+            "properties": {
+                "cover_factor": {
+                    "description": "封面覆膜系数",
+                    "type": "number"
+                },
+                "dollar_rate": {
+                    "description": "美元汇率",
+                    "type": "number"
+                },
+                "id": {
+                    "description": "记录id",
+                    "type": "integer"
+                },
+                "price_factor": {
+                    "description": "报价系数",
+                    "type": "number"
+                },
+                "rmb_rate": {
+                    "description": "人民币汇率",
+                    "type": "number"
+                },
+                "size_factor": {
+                    "description": "体积系数",
+                    "type": "number"
+                },
+                "size_factor2": {
+                    "description": "体积系数2",
+                    "type": "number"
+                },
+                "updated_time": {
+                    "description": "更新时间",
+                    "type": "string"
+                },
+                "weight_factor": {
+                    "description": "重量系数",
+                    "type": "number"
+                }
+            }
+        },
+        "product_price_r.SystemConfigUpdate": {
+            "type": "object",
+            "properties": {
+                "cover_factor": {
+                    "description": "封面覆膜系数",
+                    "type": "number"
+                },
+                "dollar_rate": {
+                    "description": "美元汇率",
+                    "type": "number"
+                },
+                "price_factor": {
+                    "description": "报价系数",
+                    "type": "number"
+                },
+                "rmb_rate": {
+                    "description": "人民币汇率",
+                    "type": "number"
+                },
+                "size_factor": {
+                    "description": "体积系数",
+                    "type": "number"
+                },
+                "size_factor2": {
+                    "description": "体积系数2",
+                    "type": "number"
+                },
+                "weight_factor": {
+                    "description": "重量系数",
+                    "type": "number"
                 }
             }
         },

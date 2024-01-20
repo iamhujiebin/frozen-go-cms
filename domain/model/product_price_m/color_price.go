@@ -44,3 +44,25 @@ func (ColorPrice) TableName() string {
 func CreateColorPrice(model *domain.Model, price ColorPrice) error {
 	return model.DB().Create(&price).Error
 }
+
+// 分页获取印刷价格
+func PageColorPrice(model *domain.Model, offset, limit int) ([]ColorPrice, int64) {
+	var res []ColorPrice
+	var total int64
+	if err := model.DB().Model(ColorPrice{}).Where("status = 1").
+		Count(&total).
+		Offset(offset).Limit(limit).Find(&res).Error; err != nil {
+		model.Log.Errorf("PageColorPrice fail:%v", err)
+	}
+	return res, total
+}
+
+// 更新印刷价格
+func UpdateColorPrice(model *domain.Model, id mysql.ID, updates map[string]interface{}) error {
+	return model.DB().Table(ColorPrice{}.TableName()).Where("id = ?", id).Updates(updates).Error
+}
+
+// 删除印刷价格
+func DeleteColorPrice(model *domain.Model, id mysql.ID) error {
+	return model.DB().Table(ColorPrice{}.TableName()).Where("id = ?", id).UpdateColumn("status", 0).Error
+}

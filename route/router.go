@@ -102,8 +102,17 @@ func InitRouter() *gin.Engine {
 	}
 	productPrice := v1.Group("productPrice")
 	{
+		// 系统配置
 		productPrice.GET("/system/config", wrapper(product_price_r.SystemConfigGet))
 		productPrice.PUT("/system/config", wrapper(product_price_r.SystemConfigPut))
+		// 印刷价格
+		productPrice.GET("/color", wrapper(product_price_r.ColorPriceGet))
+		productPrice.PUT("/color/:id", wrapper(product_price_r.ColorPricePut))
+		productPrice.POST("/color", wrapper(product_price_r.ColorPricePost))
+		productPrice.DELETE("/color/:id", wrapper(product_price_r.ColorPriceDelete))
+		// 工艺价格
+		// 材料价格
+		// 规格尺寸
 	}
 	return r
 }

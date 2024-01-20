@@ -42,6 +42,28 @@ func ResponseOk(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, response)
 }
 
+type Page struct {
+	Total int64       `json:"total"`
+	Data  interface{} `json:"data"`
+}
+
+func ResponsePageOk(c *gin.Context, data interface{}, total int64) {
+	// always return http.StatusOK
+	pageData := Page{
+		Total: total,
+		Data:  data,
+	}
+	response := Response{
+		Code:             200,
+		Message:          "success",
+		OperationMessage: "",
+		Data:             pageData,
+	}
+	printResponseBody(c, &response)
+
+	c.JSON(http.StatusOK, response)
+}
+
 func ResponseWaring(c *gin.Context, err error) {
 	msg := ""
 	if err != nil {
