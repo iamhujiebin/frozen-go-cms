@@ -111,6 +111,10 @@ func InitRouter() *gin.Engine {
 		productPrice.POST("/color", wrapper(product_price_r.ColorPricePost))
 		productPrice.DELETE("/color/:id", wrapper(product_price_r.ColorPriceDelete))
 		// 工艺价格
+		productPrice.GET("/craft", wrapper(product_price_r.CraftPriceGet))
+		productPrice.PUT("/craft/:id", wrapper(product_price_r.CraftPricePut))
+		productPrice.POST("/craft", wrapper(product_price_r.CraftPricePost))
+		productPrice.DELETE("/craft/:id", wrapper(product_price_r.CraftPriceDelete))
 		// 材料价格
 		// 规格尺寸
 	}

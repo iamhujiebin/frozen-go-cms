@@ -31,3 +31,25 @@ func (CraftPrice) TableName() string {
 func CreateCraftPrice(model *domain.Model, color CraftPrice) error {
 	return model.DB().Create(&color).Error
 }
+
+// 分页获取工艺价格
+func PageCraftPrice(model *domain.Model, offset, limit int) ([]CraftPrice, int64) {
+	var res []CraftPrice
+	var total int64
+	if err := model.DB().Model(CraftPrice{}).Where("status = 1").
+		Count(&total).
+		Offset(offset).Limit(limit).Find(&res).Error; err != nil {
+		model.Log.Errorf("PageCraftPrice fail:%v", err)
+	}
+	return res, total
+}
+
+// 更新工艺价格
+func UpdateCraftPrice(model *domain.Model, id mysql.ID, updates map[string]interface{}) error {
+	return model.DB().Table(CraftPrice{}.TableName()).Where("id = ?", id).Updates(updates).Error
+}
+
+// 删除工艺价格
+func DeleteCraftPrice(model *domain.Model, id mysql.ID) error {
+	return model.DB().Table(CraftPrice{}.TableName()).Where("id = ?", id).UpdateColumn("status", 0).Error
+}
