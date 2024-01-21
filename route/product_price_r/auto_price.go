@@ -138,7 +138,7 @@ func AutoPriceConfigGet(c *gin.Context) (*mycontext.MyContext, error) {
 	}
 	for materialName, grams := range coverMaterialNameMap {
 		coverMaterials = append(coverMaterials, Material{
-			//Id:            0,
+			Id:            0,
 			MaterialName:  materialName,
 			MaterialGrams: grams,
 		})
@@ -157,10 +157,11 @@ func AutoPriceConfigGet(c *gin.Context) (*mycontext.MyContext, error) {
 	_coverCrafts := product_price_m.GetCraftByCraftName(model, CoverCrafts)
 	for _, v := range _coverCrafts {
 		coverCrafts = append(coverCrafts, Craft{
-			Id:            v.ID,
-			CraftName:     v.CraftName,
-			MinSumPrice:   v.MinSumPrice,
-			CraftUnitName: v.CraftUnit,
+			Id:             v.ID,
+			CraftName:      v.CraftName,
+			MinSumPrice:    v.MinSumPrice,
+			CraftUnitName:  v.CraftUnit,
+			CraftUnitPrice: v.CraftPrice,
 		})
 	}
 	// 内页材料
