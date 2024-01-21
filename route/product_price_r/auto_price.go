@@ -89,7 +89,8 @@ var (
 	DefaultPrintNum = 1000                                                     // 默认印刷本数
 	DefaultPageNum  = 4                                                        // 默认印刷本数
 	PayMethods      = []string{"Ali Assurance", "T/T", "Paypal", "West Union"} // 付款方式
-	DeliveryTimes   = []string{"Ali Assurance", "T/T", "Paypal", "West Union"} // 计划货期
+	DeliveryTimes   = []string{"3-5 working days", "5-10 working days", "10-15 working days",
+		"16-20 working days", "21-25 working days", "26-30 working days"} // 计划货期
 
 	// 目前hardcode的动作
 	YOBindStyle         = "Y-O 装订"
