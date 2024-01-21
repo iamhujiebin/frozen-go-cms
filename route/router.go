@@ -102,6 +102,8 @@ func InitRouter() *gin.Engine {
 	}
 	productPrice := v1.Group("productPrice")
 	{
+		// 自动报价
+		productPrice.GET("/auto/config", wrapper(product_price_r.AutoPriceConfigGet))
 		// 系统配置
 		productPrice.GET("/system/config", wrapper(product_price_r.SystemConfigGet))
 		productPrice.PUT("/system/config", wrapper(product_price_r.SystemConfigPut))

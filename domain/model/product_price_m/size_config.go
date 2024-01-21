@@ -1,6 +1,7 @@
 package product_price_m
 
 import (
+	"frozen-go-cms/_const/enum/product_price_e"
 	"frozen-go-cms/common/domain"
 	"frozen-go-cms/common/resource/mysql"
 )
@@ -58,4 +59,13 @@ func UpdateSizeConfig(model *domain.Model, id mysql.ID, updates map[string]inter
 // 删除规格尺寸
 func DeleteSizeConfig(model *domain.Model, id mysql.ID) error {
 	return model.DB().Table(SizeConfig{}.TableName()).Where("id = ?", id).UpdateColumn("status", 0).Error
+}
+
+// 根据类型获取规格尺寸
+func GetSizeConfigByType(model *domain.Model, _type product_price_e.SizeConfigType) []SizeConfig {
+	var res []SizeConfig
+	if err := model.DB().Model(SizeConfig{}).Where("type = ?", _type).Find(&res).Error; err != nil {
+		model.Log.Errorf("GetSizeConfigByType fail:%v", err)
+	}
+	return res
 }

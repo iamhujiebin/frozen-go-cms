@@ -53,3 +53,30 @@ func UpdateCraftPrice(model *domain.Model, id mysql.ID, updates map[string]inter
 func DeleteCraftPrice(model *domain.Model, id mysql.ID) error {
 	return model.DB().Table(CraftPrice{}.TableName()).Where("id = ?", id).UpdateColumn("status", 0).Error
 }
+
+// 根据CraftBodyName找数据
+func GetCraftByCraftBodyName(model *domain.Model, names []string) []CraftPrice {
+	var rows []CraftPrice
+	if err := model.DB().Model(CraftPrice{}).Where("craft_body_name in ?", names).Find(&rows).Error; err != nil {
+		model.Log.Errorf("GetCraftByCraftBodyName fail:%v", err)
+	}
+	return rows
+}
+
+// 根据CraftName找数据
+func GetCraftByCraftName(model *domain.Model, names []string) []CraftPrice {
+	var rows []CraftPrice
+	if err := model.DB().Model(CraftPrice{}).Where("craft_name in ?", names).Find(&rows).Error; err != nil {
+		model.Log.Errorf("GetCraftByCraftName fail:%v", err)
+	}
+	return rows
+}
+
+// 获取所有包装要求
+func GetPackageCrafts(model *domain.Model) []CraftPrice {
+	var rows []CraftPrice
+	if err := model.DB().Model(CraftPrice{}).Where("craft_name = '包装要求'").Find(&rows).Error; err != nil {
+		model.Log.Errorf("GetPackageCrafts fail:%v", err)
+	}
+	return rows
+}

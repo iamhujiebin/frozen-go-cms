@@ -54,3 +54,12 @@ func UpdateMaterialPrice(model *domain.Model, id mysql.ID, updates map[string]in
 func DeleteMaterialPrice(model *domain.Model, id mysql.ID) error {
 	return model.DB().Table(MaterialPrice{}.TableName()).Where("id = ?", id).UpdateColumn("status", 0).Error
 }
+
+// 根据名称获取材料
+func GetMaterialPriceByName(model *domain.Model, names []string) []MaterialPrice {
+	var rows []MaterialPrice
+	if err := model.DB().Model(MaterialPrice{}).Where("`material_name` in ?", names).Find(&rows).Error; err != nil {
+		model.Log.Errorf("GetMaterialPriceByName fail:%v", err)
+	}
+	return rows
+}
