@@ -13,6 +13,7 @@ import (
 type Craft struct {
 	Id              uint64                        `json:"id"`                // 记录id
 	CraftName       string                        `json:"craft_name"`        // 名称
+	CraftBodyName   string                        `json:"craft_body_name"`   // body名称
 	MinSumPrice     float64                       `json:"min_sum_price"`     // 最低价格
 	CraftUnitType   product_price_e.CraftUnitType `json:"craft_unit_type"`   // 0:无 1:元/张 2:元/本 3:元/次 4:元/m² 5:元/cm²
 	CraftUnitPrice  float64                       `json:"craft_unit_price"`  // 单价
@@ -217,6 +218,7 @@ func AutoPriceConfigGet(c *gin.Context) (*mycontext.MyContext, error) {
 		pageInnerPackages = append(pageInnerPackages, Craft{
 			Id:              v.ID,
 			CraftName:       v.CraftName,
+			CraftBodyName:   v.CraftBodyName,
 			MinSumPrice:     v.MinSumPrice,
 			CraftUnitName:   v.CraftUnit,
 			CraftUnitType:   0,
