@@ -69,3 +69,12 @@ func GetSizeConfigByType(model *domain.Model, _type product_price_e.SizeConfigTy
 	}
 	return res
 }
+
+// 根据id获取规格尺寸
+func GetSizeConfigById(model *domain.Model, id mysql.ID) SizeConfig {
+	var size SizeConfig
+	if err := model.DB().Model(SizeConfig{}).Where("id = ?", id).First(&size).Error; err != nil {
+		model.Log.Errorf("GetSizeConfigById fail:%v", err)
+	}
+	return size
+}

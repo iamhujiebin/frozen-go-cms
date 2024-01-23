@@ -80,3 +80,12 @@ func GetPackageCrafts(model *domain.Model) []CraftPrice {
 	}
 	return rows
 }
+
+// 根据ids获取工艺
+func GetCraftByIds(model *domain.Model, ids []mysql.ID) []CraftPrice {
+	var res []CraftPrice
+	if err := model.DB().Model(CraftPrice{}).Where("id in ?", ids).Find(&res).Error; err != nil {
+		model.Log.Errorf("GetCraftByIds fail:%v", err)
+	}
+	return res
+}

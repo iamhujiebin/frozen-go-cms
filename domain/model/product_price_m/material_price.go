@@ -63,3 +63,12 @@ func GetMaterialPriceByName(model *domain.Model, names []string) []MaterialPrice
 	}
 	return rows
 }
+
+// 根据名称和克重获取材料
+func GetMaterialByNameGram(model *domain.Model, name string, gram int) MaterialPrice {
+	var res MaterialPrice
+	if err := model.DB().Model(MaterialPrice{}).Where("material_name = ? AND material_gram = ?", name, gram).First(&res).Error; err != nil {
+		model.Log.Errorf("GetMaterialByNameGram fail:%v", err)
+	}
+	return res
+}

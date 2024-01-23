@@ -1,12 +1,14 @@
 package product_price_r
 
 import (
+	"fmt"
 	"frozen-go-cms/_const/enum/product_price_e"
 	"frozen-go-cms/common/domain"
 	"frozen-go-cms/common/mycontext"
 	"frozen-go-cms/domain/model/product_price_m"
 	"frozen-go-cms/resp"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 )
 
 // 工艺
@@ -326,144 +328,207 @@ type AutoPriceReq struct {
 		PriceFactor  float64 `json:"price_factor,omitempty"`
 		PrintNum     int     `json:"print_num,omitempty"`
 		ProductName  string  `json:"product_name,omitempty"`
-		Size         int     `json:"size,omitempty"`
+		Size         uint64  `json:"size,omitempty"`
 		TranDesc     string  `json:"tran_desc,omitempty"`
 		TranPrice    int     `json:"tran_price,omitempty"`
 	} `json:"product,omitempty"`
 	Cover struct {
-		CoverColor        int     `json:"cover_color,omitempty"`
-		CoverCraftCheck42 bool    `json:"cover_craft_check_42,omitempty"`
-		CoverCraftCheck46 bool    `json:"cover_craft_check_46,omitempty"`
-		CoverCraftCheck50 bool    `json:"cover_craft_check_50,omitempty"`
-		CoverCraftCheck51 bool    `json:"cover_craft_check_51,omitempty"`
-		CoverCraftCheck52 bool    `json:"cover_craft_check_52,omitempty"`
-		CoverCraftCheck53 bool    `json:"cover_craft_check_53,omitempty"`
-		CoverCraftCheck54 bool    `json:"cover_craft_check_54,omitempty"`
-		CoverCraftCheck55 bool    `json:"cover_craft_check_55,omitempty"`
-		CoverCraftUnit42  int     `json:"cover_craft_unit_42,omitempty"`
-		CoverCraftUnit46  float64 `json:"cover_craft_unit_46,omitempty"`
-		CoverCraftUnit50  float64 `json:"cover_craft_unit_50,omitempty"`
-		CoverCraftUnit51  float64 `json:"cover_craft_unit_51,omitempty"`
-		CoverCraftUnit52  float64 `json:"cover_craft_unit_52,omitempty"`
-		CoverCraftUnit53  float64 `json:"cover_craft_unit_53,omitempty"`
-		CoverCraftUnit54  float64 `json:"cover_craft_unit_54,omitempty"`
-		CoverCraftUnit55  float64 `json:"cover_craft_unit_55,omitempty"`
-		CoverCraftX54     int     `json:"cover_craft_x_54,omitempty"`
-		CoverCraftX55     int     `json:"cover_craft_x_55,omitempty"`
-		CoverCraftY54     int     `json:"cover_craft_y_54,omitempty"`
-		CoverCraftY55     int     `json:"cover_craft_y_55,omitempty"`
-		CoverMaterial     string  `json:"cover_material,omitempty"`
-		CoverMaterialsNum int     `json:"cover_materials_num,omitempty"`
+		CoverColor        uint64    `json:"cover_color,omitempty"`
+		CoverMaterial     string    `json:"cover_material,omitempty"`
+		CoverMaterialGram int       `json:"cover_material_gram,omitempty"`
+		CoverCraftIds     []uint64  `json:"cover_craft_ids"`   // 封面需要用到的工艺ids
+		CoverCraftUnits   []float64 `json:"cover_craft_units"` // 上面对应的单价,要求len(CoverCraftIds)==len(CoverCraftUnits)
+		CoverCraftXs      []float64 `json:"cover_craft_xs"`    // 上面对应的面积x
+		CoverCraftYs      []float64 `json:"cover_craft_ys"`    // 上面对应的面积y
 		CoverOtherCrafts  []struct {
-			Name  string `json:"name,omitempty"`
-			Price string `json:"price,omitempty"`
+			Name  string  `json:"name,omitempty"`
+			Price float64 `json:"price,omitempty"`
 		} `json:"cover_other_crafts,omitempty"`
 	} `json:"cover,omitempty"`
 	Inner struct {
-		InnerBindCheck19  bool    `json:"inner_bind_check_19,omitempty"`
-		InnerBindCheck20  bool    `json:"inner_bind_check_20,omitempty"`
-		InnerBindCheck21  bool    `json:"inner_bind_check_21,omitempty"`
-		InnerBindCheck22  bool    `json:"inner_bind_check_22,omitempty"`
-		InnerBindCheck23  bool    `json:"inner_bind_check_23,omitempty"`
-		InnerBindCheck24  bool    `json:"inner_bind_check_24,omitempty"`
-		InnerBindCheck25  bool    `json:"inner_bind_check_25,omitempty"`
-		InnerBindCheck28  bool    `json:"inner_bind_check_28,omitempty"`
-		InnerBindCheck29  bool    `json:"inner_bind_check_29,omitempty"`
-		InnerBindUnit19   int     `json:"inner_bind_unit_19,omitempty"`
-		InnerBindUnit20   int     `json:"inner_bind_unit_20,omitempty"`
-		InnerBindUnit21   int     `json:"inner_bind_unit_21,omitempty"`
-		InnerBindUnit22   int     `json:"inner_bind_unit_22,omitempty"`
-		InnerBindUnit23   int     `json:"inner_bind_unit_23,omitempty"`
-		InnerBindUnit24   int     `json:"inner_bind_unit_24,omitempty"`
-		InnerBindUnit25   int     `json:"inner_bind_unit_25,omitempty"`
-		InnerBindUnit28   float64 `json:"inner_bind_unit_28,omitempty"`
-		InnerBindUnit29   float64 `json:"inner_bind_unit_29,omitempty"`
-		InnerColor        int     `json:"inner_color,omitempty"`
-		InnerCraftCheck26 bool    `json:"inner_craft_check_26,omitempty"`
-		InnerCraftCheck27 bool    `json:"inner_craft_check_27,omitempty"`
-		InnerCraftCheck35 bool    `json:"inner_craft_check_35,omitempty"`
-		InnerCraftCheck36 bool    `json:"inner_craft_check_36,omitempty"`
-		InnerCraftCheck54 bool    `json:"inner_craft_check_54,omitempty"`
-		InnerCraftCheck55 any     `json:"inner_craft_check_55,omitempty"`
-		InnerCraftUnit26  float64 `json:"inner_craft_unit_26,omitempty"`
-		InnerCraftUnit27  float64 `json:"inner_craft_unit_27,omitempty"`
-		InnerCraftUnit35  float64 `json:"inner_craft_unit_35,omitempty"`
-		InnerCraftUnit36  float64 `json:"inner_craft_unit_36,omitempty"`
-		InnerCraftUnit54  float64 `json:"inner_craft_unit_54,omitempty"`
-		InnerCraftUnit55  float64 `json:"inner_craft_unit_55,omitempty"`
-		InnerCraftX54     any     `json:"inner_craft_x_54,omitempty"`
-		InnerCraftX55     any     `json:"inner_craft_x_55,omitempty"`
-		InnerCraftY54     any     `json:"inner_craft_y_54,omitempty"`
-		InnerCraftY55     any     `json:"inner_craft_y_55,omitempty"`
-		InnerMaterial     string  `json:"inner_material,omitempty"`
-		InnerMaterialsNum int     `json:"inner_materials_num,omitempty"`
-		InnerPageNum      int     `json:"inner_page_num,omitempty"`
+		InnerColor        uint64    `json:"inner_color,omitempty"`
+		InnerMaterial     string    `json:"inner_material,omitempty"`
+		InnerMaterialGram int       `json:"inner_material_gram,omitempty"`
+		InnerPageNum      int       `json:"inner_page_num,omitempty"`
+		InnerCraftIds     []uint64  `json:"inner_craft_ids"`     // 内页需要用到工艺ids
+		InnerCraftUnits   []float64 `json:"inner_craft_units"`   // 上面对应的单价,要求len(InnerCraftIds)==len(InnerCraftUnits)
+		InnerCraftXs      []float64 `json:"inner_craft_xs"`      // 上面对应的面积x
+		InnerCraftYs      []float64 `json:"inner_craft_ys"`      // 上面对应的面积y
+		InnerBindIds      []uint64  `json:"inner_bind_ids"`      // 内页用到装订工艺ids
+		InnerBindUnits    []float64 `json:"inner_bind_units"`    // 上面对应的单价,要求len(InnerBindIds)==len(InnerBindUnits)
+		InnerBindNums     []int     `json:"inner_bind_nums"`     // 上面对应的数量
+		InnerPackageIds   []uint64  `json:"inner_package_ids"`   // 内页用到的包装工艺ids
+		InnerPackageUnits []float64 `json:"inner_package_units"` // 上面对应的单价,要求len(InnerPackageIds)==len(InnerPackageUnits)
 	} `json:"inner,omitempty"`
-	Tab struct {
-		TabPageNum      int     `json:"tab_page_num,omitempty"`
-		TabColor        int     `json:"tab_color,omitempty"`
-		TabCraftCheck35 bool    `json:"tab_craft_check_35,omitempty"`
-		TabCraftCheck36 bool    `json:"tab_craft_check_36,omitempty"`
-		TabCraftCheck52 bool    `json:"tab_craft_check_52,omitempty"`
-		TabCraftCheck53 bool    `json:"tab_craft_check_53,omitempty"`
-		TabCraftCheck54 bool    `json:"tab_craft_check_54,omitempty"`
-		TabCraftCheck55 bool    `json:"tab_craft_check_55,omitempty"`
-		TabCraftUnit35  float64 `json:"tab_craft_unit_35,omitempty"`
-		TabCraftUnit36  float64 `json:"tab_craft_unit_36,omitempty"`
-		TabCraftUnit52  float64 `json:"tab_craft_unit_52,omitempty"`
-		TabCraftUnit53  int     `json:"tab_craft_unit_53,omitempty"`
-		TabCraftUnit54  float64 `json:"tab_craft_unit_54,omitempty"`
-		TabCraftUnit55  float64 `json:"tab_craft_unit_55,omitempty"`
-		TabCraftX54     int     `json:"tab_craft_x_54,omitempty"`
-		TabCraftX55     int     `json:"tab_craft_x_55,omitempty"`
-		TabCraftY54     int     `json:"tab_craft_y_54,omitempty"`
-		TabCraftY55     int     `json:"tab_craft_y_55,omitempty"`
-		TabMaterial     string  `json:"tab_material,omitempty"`
-		TabMaterialsNum int     `json:"tab_materials_num,omitempty"`
+	HasTab bool `json:"has_tab"` // 是否要Tab页
+	Tab    struct {
+		TabPageNum      int       `json:"tab_page_num,omitempty"`
+		TabMaterial     string    `json:"tab_material,omitempty"`
+		TabMaterialGram int       `json:"tab_material_gram,omitempty"`
+		TabColor        uint64    `json:"tab_color,omitempty"`
+		TabCraftIds     []uint64  `json:"tab_craft_ids"`   // tab面需要用到的工艺ids
+		TabCraftUnits   []float64 `json:"tab_craft_units"` // 上面对应的单价,要求len(TabCraftIds)==len(TabCraftUnits)
+		TabCraftXs      []float64 `json:"tab_craft_xs"`    // 上面对应的面积x
+		TabCraftYs      []float64 `json:"tab_craft_ys"`    // 上面对应的面积y
 	} `json:"tab,omitempty"`
 }
 
+type ProductDetail struct {
+	PageNum      string   `json:"page_num"`      // 4P
+	MaterialName string   `json:"material_name"` // PU面料等
+	MaterialGram string   `json:"material_gram"` // 克重
+	ColorCode    string   `json:"color_code"`    // color代号
+	CraftNames   []string `json:"craft_names"`   // 用到的工艺名称s
+}
+
+type AutoPriceProductDetail struct {
+	Size        string        `json:"size"`
+	CoverDetail ProductDetail `json:"cover_detail"`
+	InnerDetail ProductDetail `json:"inner_detail"`
+	HasTab      bool          `json:"has_tab"`
+	TabDetail   ProductDetail `json:"tab_detail"`
+}
+
+type AutoPriceDetail struct {
+	CoverColorPrice    float64 `json:"cover_color_price"`    // 封面印刷价格
+	CoverMaterialPrice float64 `json:"cover_material_price"` // 封面材料价格
+	InnerColorPrice    float64 `json:"inner_color_price"`    // 内页印刷价格
+	InnerMaterialPrice float64 `json:"inner_material_price"` // 内页材料价格
+	TabColorPrice      float64 `json:"tab_color_price"`      // tab页印刷价格
+	TabMaterialPrice   float64 `json:"tab_material_price"`   // tab页材料价格
+	BindingPrice       float64 `json:"binding_price"`        // 装订价格
+	PackagingPrice     float64 `json:"packaging_price"`      // 包装价格
+	CraftPriceSum      float64 `json:"craft_price_sum"`      // 工艺费用: 封面+内页+tab汇总
+}
+
 type AutoPriceResponse struct {
-	ChMessage string `json:"chMessage"` // 中文信息
-	EnMessage string `json:"enMessage"` // 英文信息
+	ProductDetail   AutoPriceProductDetail `json:"product_detail"`    // 产品明细
+	AutoPriceDetail AutoPriceDetail        `json:"auto_price_detail"` // 报价明细
+	PayMethod       string                 `json:"pay_method"`        // 支付方式
+	DeliverTimes    string                 `json:"deliver_times"`     // 计划货期
 }
 
 // @Tags 报价系统
 // @Summary 自动报价
 // @Param Authorization header string true "token"
+// @Param AutoPriceReq body AutoPriceReq true "请求体"
 // @Success 200 {object} AutoPriceResponse
 // @Router /v1_0/productPrice/auto/generate [post]
 func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 	myCtx := mycontext.CreateMyContext(c.Keys)
-	//model := domain.CreateModelContext(myCtx)
+	model := domain.CreateModelContext(myCtx)
 	var req AutoPriceReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		//return myCtx, err
+		return myCtx, err
 	}
-	var response AutoPriceResponse
-	response.ChMessage = `
-封面印刷：300.00元
-封面材料：2903.15元
-内页印刷：300.00元
-内页材料：108.67元
-装订价格：2500.00元
-工艺费用 ：534.80元
-包装要求 ：400.00元
- – – – – – – – – – – – – – – – – –  
-生产成本 ：7046.62元
+	// 规格
+	size := product_price_m.GetSizeConfigById(model, req.Product.Size)
+	// 封面
+	coverColor := product_price_m.GetColorPriceById(model, req.Cover.CoverColor)
+	coverCrafts := product_price_m.GetCraftByIds(model, req.Cover.CoverCraftIds)
+	var coverCraftNames []string
+	for _, v := range coverCrafts {
+		coverCraftNames = append(coverCraftNames, v.CraftBodyCode)
+	}
+	for _, v := range req.Cover.CoverOtherCrafts {
+		coverCraftNames = append(coverCraftNames, v.Name)
+	}
+	// 内页
+	innerColor := product_price_m.GetColorPriceById(model, req.Inner.InnerColor)
+	innerCrafts := product_price_m.GetCraftByIds(model, req.Inner.InnerCraftIds)
+	innerBinds := product_price_m.GetCraftByIds(model, req.Inner.InnerBindIds)
+	innerPackages := product_price_m.GetCraftByIds(model, req.Inner.InnerPackageIds)
+	var innerCraftNames []string
+	for _, v := range innerCrafts {
+		innerCraftNames = append(innerCraftNames, v.CraftBodyCode)
+	}
+	for _, v := range innerBinds {
+		innerCraftNames = append(innerCraftNames, v.CraftBodyCode)
+	}
+	for _, v := range innerPackages {
+		innerCraftNames = append(innerCraftNames, v.CraftBodyCode)
+	}
+	// tab页面
+	tabColor := product_price_m.GetColorPriceById(model, req.Tab.TabColor)
+	tabCrafts := product_price_m.GetCraftByIds(model, req.Tab.TabCraftIds)
+	var tabCraftNames []string
+	for _, v := range tabCrafts {
+		tabCraftNames = append(tabCraftNames, v.CraftBodyCode)
+	}
+	// 产品材料细节
+	productDetail := AutoPriceProductDetail{
+		Size: size.SizeCode,
+		CoverDetail: ProductDetail{
+			PageNum:      "4P",
+			MaterialName: req.Cover.CoverMaterial,
+			MaterialGram: cast.ToString(req.Cover.CoverMaterialGram),
+			ColorCode:    coverColor.ColorCode,
+			CraftNames:   coverCraftNames,
+		},
+		InnerDetail: ProductDetail{
+			PageNum:      fmt.Sprintf("%dP", req.Inner.InnerPageNum),
+			MaterialName: req.Inner.InnerMaterial,
+			MaterialGram: cast.ToString(req.Inner.InnerMaterialGram),
+			ColorCode:    innerColor.ColorCode,
+			CraftNames:   innerCraftNames,
+		},
+		HasTab: req.HasTab,
+		TabDetail: ProductDetail{
+			PageNum:      fmt.Sprintf("%dP", req.Tab.TabPageNum),
+			MaterialName: req.Tab.TabMaterial,
+			MaterialGram: cast.ToString(req.Tab.TabMaterialGram),
+			ColorCode:    tabColor.ColorCode,
+			CraftNames:   tabCraftNames,
+		},
+	}
+	// 产品报价 final todo
+	coverMaterial := product_price_m.GetMaterialByNameGram(model, req.Cover.CoverMaterial, req.Cover.CoverMaterialGram)
+	innerMaterial := product_price_m.GetMaterialByNameGram(model, req.Inner.InnerMaterial, req.Inner.InnerMaterialGram)
+	var bindingPrice, packagePrice float64
+	for _, v := range innerBinds {
+		bindingPrice += v.MinSumPrice // todo 这是工艺的价格计算，这个很复杂，需要用面积/个数/单价的，不过有个最低单价
+	}
+	for _, v := range innerPackages {
+		packagePrice += v.MinSumPrice // todo 这是工艺的价格计算，这个很复杂，需要用面积/个数/单价的，不过有个最低单价
+	}
+	// 工艺价格
+	var craftPrice float64
+	for _, v := range coverCrafts {
+		craftPrice += v.MinSumPrice
+	}
+	for _, v := range req.Cover.CoverOtherCrafts {
+		craftPrice += v.Price
+	}
+	for _, v := range innerCrafts {
+		craftPrice += v.MinSumPrice
+	}
+	var tabColorPrice, tabMaterialPrice float64
+	if req.HasTab {
+		tabColorPrice = tabColor.PrintBasePrice
+		tabMaterial := product_price_m.GetMaterialByNameGram(model, req.Tab.TabMaterial, req.Tab.TabMaterialGram)
+		tabMaterialPrice = tabMaterial.LowPrice * float64(req.Tab.TabPageNum)
+		for _, v := range innerCrafts {
+			craftPrice += v.MinSumPrice
+		}
+	}
+	priceDetail := AutoPriceDetail{
+		CoverColorPrice:    coverColor.PrintBasePrice,                                  // BasePrice乘以BaseNum?
+		CoverMaterialPrice: coverMaterial.LowPrice * float64(req.Product.PrintNum) * 4, // 印刷跟本书有关的。
+		InnerColorPrice:    innerColor.PrintBasePrice,
+		InnerMaterialPrice: innerMaterial.LowPrice * float64(req.Inner.InnerPageNum),
+		TabColorPrice:      tabColorPrice,
+		TabMaterialPrice:   tabMaterialPrice,
+		BindingPrice:       bindingPrice,
+		PackagingPrice:     packagePrice,
+		CraftPriceSum:      craftPrice,
+	}
 
-额外成本：0元
-运输成本：0.00元
- – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – –
-费用合计 ：7046.62元
-`
-	response.EnMessage = `
-Size:140*210mm 
-Cover: 4P 270g PU   Leather  4C+0C  Matt Lamination   +Grey Board 
-Inside page: 4P 210g Gloss Art  Paper  C1S  4C+4C     Poly Bag   Cartoning 
-Wire bound
- By Ali Assurance    Price    Total: USD1371.76
-`
+	var response = AutoPriceResponse{
+		ProductDetail:   productDetail,
+		AutoPriceDetail: priceDetail,
+		PayMethod:       req.Product.PayMethod,
+		DeliverTimes:    req.Product.DeliveryTime,
+	}
 	resp.ResponseOk(c, response)
 	return myCtx, nil
 }

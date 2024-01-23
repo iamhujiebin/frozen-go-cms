@@ -67,11 +67,20 @@ func DeleteColorPrice(model *domain.Model, id mysql.ID) error {
 	return model.DB().Table(ColorPrice{}.TableName()).Where("id = ?", id).UpdateColumn("status", 0).Error
 }
 
-// 根据id获取颜色
+// 根据ids获取颜色
 func GetColorPriceByIds(model *domain.Model, ids []mysql.ID) []ColorPrice {
 	var res []ColorPrice
 	if err := model.DB().Model(ColorPrice{}).Where("id in ?", ids).Find(&res).Error; err != nil {
 		model.Log.Errorf("GetColorPriceByIds fail:%v", err)
+	}
+	return res
+}
+
+// 根据id获取颜色
+func GetColorPriceById(model *domain.Model, id mysql.ID) ColorPrice {
+	var res ColorPrice
+	if err := model.DB().Model(ColorPrice{}).Where("id = ?", id).First(&res).Error; err != nil {
+		model.Log.Errorf("GetColorPriceById fail:%v", err)
 	}
 	return res
 }
