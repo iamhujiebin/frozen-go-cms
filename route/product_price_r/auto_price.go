@@ -313,3 +313,157 @@ func AutoPriceConfigGet(c *gin.Context) (*mycontext.MyContext, error) {
 	resp.ResponseOk(c, response)
 	return myCtx, nil
 }
+
+type AutoPriceReq struct {
+	Product struct {
+		BindStyle    int     `json:"bind_style,omitempty"`
+		ClientName   string  `json:"client_name,omitempty"`
+		DeliveryTime string  `json:"delivery_time,omitempty"`
+		PayExtraDesc string  `json:"pay_extra_desc,omitempty"`
+		PayExtraNum  int     `json:"pay_extra_num,omitempty"`
+		PayExtraUnit int     `json:"pay_extra_unit,omitempty"`
+		PayMethod    string  `json:"pay_method,omitempty"`
+		PriceFactor  float64 `json:"price_factor,omitempty"`
+		PrintNum     int     `json:"print_num,omitempty"`
+		ProductName  string  `json:"product_name,omitempty"`
+		Size         int     `json:"size,omitempty"`
+		TranDesc     string  `json:"tran_desc,omitempty"`
+		TranPrice    int     `json:"tran_price,omitempty"`
+	} `json:"product,omitempty"`
+	Cover struct {
+		CoverColor        int     `json:"cover_color,omitempty"`
+		CoverCraftCheck42 bool    `json:"cover_craft_check_42,omitempty"`
+		CoverCraftCheck46 bool    `json:"cover_craft_check_46,omitempty"`
+		CoverCraftCheck50 bool    `json:"cover_craft_check_50,omitempty"`
+		CoverCraftCheck51 bool    `json:"cover_craft_check_51,omitempty"`
+		CoverCraftCheck52 bool    `json:"cover_craft_check_52,omitempty"`
+		CoverCraftCheck53 bool    `json:"cover_craft_check_53,omitempty"`
+		CoverCraftCheck54 bool    `json:"cover_craft_check_54,omitempty"`
+		CoverCraftCheck55 bool    `json:"cover_craft_check_55,omitempty"`
+		CoverCraftUnit42  int     `json:"cover_craft_unit_42,omitempty"`
+		CoverCraftUnit46  float64 `json:"cover_craft_unit_46,omitempty"`
+		CoverCraftUnit50  float64 `json:"cover_craft_unit_50,omitempty"`
+		CoverCraftUnit51  float64 `json:"cover_craft_unit_51,omitempty"`
+		CoverCraftUnit52  float64 `json:"cover_craft_unit_52,omitempty"`
+		CoverCraftUnit53  float64 `json:"cover_craft_unit_53,omitempty"`
+		CoverCraftUnit54  float64 `json:"cover_craft_unit_54,omitempty"`
+		CoverCraftUnit55  float64 `json:"cover_craft_unit_55,omitempty"`
+		CoverCraftX54     int     `json:"cover_craft_x_54,omitempty"`
+		CoverCraftX55     int     `json:"cover_craft_x_55,omitempty"`
+		CoverCraftY54     int     `json:"cover_craft_y_54,omitempty"`
+		CoverCraftY55     int     `json:"cover_craft_y_55,omitempty"`
+		CoverMaterial     string  `json:"cover_material,omitempty"`
+		CoverMaterialsNum int     `json:"cover_materials_num,omitempty"`
+		CoverOtherCrafts  []struct {
+			Name  string `json:"name,omitempty"`
+			Price string `json:"price,omitempty"`
+		} `json:"cover_other_crafts,omitempty"`
+	} `json:"cover,omitempty"`
+	Inner struct {
+		InnerBindCheck19  bool    `json:"inner_bind_check_19,omitempty"`
+		InnerBindCheck20  bool    `json:"inner_bind_check_20,omitempty"`
+		InnerBindCheck21  bool    `json:"inner_bind_check_21,omitempty"`
+		InnerBindCheck22  bool    `json:"inner_bind_check_22,omitempty"`
+		InnerBindCheck23  bool    `json:"inner_bind_check_23,omitempty"`
+		InnerBindCheck24  bool    `json:"inner_bind_check_24,omitempty"`
+		InnerBindCheck25  bool    `json:"inner_bind_check_25,omitempty"`
+		InnerBindCheck28  bool    `json:"inner_bind_check_28,omitempty"`
+		InnerBindCheck29  bool    `json:"inner_bind_check_29,omitempty"`
+		InnerBindUnit19   int     `json:"inner_bind_unit_19,omitempty"`
+		InnerBindUnit20   int     `json:"inner_bind_unit_20,omitempty"`
+		InnerBindUnit21   int     `json:"inner_bind_unit_21,omitempty"`
+		InnerBindUnit22   int     `json:"inner_bind_unit_22,omitempty"`
+		InnerBindUnit23   int     `json:"inner_bind_unit_23,omitempty"`
+		InnerBindUnit24   int     `json:"inner_bind_unit_24,omitempty"`
+		InnerBindUnit25   int     `json:"inner_bind_unit_25,omitempty"`
+		InnerBindUnit28   float64 `json:"inner_bind_unit_28,omitempty"`
+		InnerBindUnit29   float64 `json:"inner_bind_unit_29,omitempty"`
+		InnerColor        int     `json:"inner_color,omitempty"`
+		InnerCraftCheck26 bool    `json:"inner_craft_check_26,omitempty"`
+		InnerCraftCheck27 bool    `json:"inner_craft_check_27,omitempty"`
+		InnerCraftCheck35 bool    `json:"inner_craft_check_35,omitempty"`
+		InnerCraftCheck36 bool    `json:"inner_craft_check_36,omitempty"`
+		InnerCraftCheck54 bool    `json:"inner_craft_check_54,omitempty"`
+		InnerCraftCheck55 any     `json:"inner_craft_check_55,omitempty"`
+		InnerCraftUnit26  float64 `json:"inner_craft_unit_26,omitempty"`
+		InnerCraftUnit27  float64 `json:"inner_craft_unit_27,omitempty"`
+		InnerCraftUnit35  float64 `json:"inner_craft_unit_35,omitempty"`
+		InnerCraftUnit36  float64 `json:"inner_craft_unit_36,omitempty"`
+		InnerCraftUnit54  float64 `json:"inner_craft_unit_54,omitempty"`
+		InnerCraftUnit55  float64 `json:"inner_craft_unit_55,omitempty"`
+		InnerCraftX54     any     `json:"inner_craft_x_54,omitempty"`
+		InnerCraftX55     any     `json:"inner_craft_x_55,omitempty"`
+		InnerCraftY54     any     `json:"inner_craft_y_54,omitempty"`
+		InnerCraftY55     any     `json:"inner_craft_y_55,omitempty"`
+		InnerMaterial     string  `json:"inner_material,omitempty"`
+		InnerMaterialsNum int     `json:"inner_materials_num,omitempty"`
+		InnerPageNum      int     `json:"inner_page_num,omitempty"`
+	} `json:"inner,omitempty"`
+	Tab struct {
+		TabPageNum      int     `json:"tab_page_num,omitempty"`
+		TabColor        int     `json:"tab_color,omitempty"`
+		TabCraftCheck35 bool    `json:"tab_craft_check_35,omitempty"`
+		TabCraftCheck36 bool    `json:"tab_craft_check_36,omitempty"`
+		TabCraftCheck52 bool    `json:"tab_craft_check_52,omitempty"`
+		TabCraftCheck53 bool    `json:"tab_craft_check_53,omitempty"`
+		TabCraftCheck54 bool    `json:"tab_craft_check_54,omitempty"`
+		TabCraftCheck55 bool    `json:"tab_craft_check_55,omitempty"`
+		TabCraftUnit35  float64 `json:"tab_craft_unit_35,omitempty"`
+		TabCraftUnit36  float64 `json:"tab_craft_unit_36,omitempty"`
+		TabCraftUnit52  float64 `json:"tab_craft_unit_52,omitempty"`
+		TabCraftUnit53  int     `json:"tab_craft_unit_53,omitempty"`
+		TabCraftUnit54  float64 `json:"tab_craft_unit_54,omitempty"`
+		TabCraftUnit55  float64 `json:"tab_craft_unit_55,omitempty"`
+		TabCraftX54     int     `json:"tab_craft_x_54,omitempty"`
+		TabCraftX55     int     `json:"tab_craft_x_55,omitempty"`
+		TabCraftY54     int     `json:"tab_craft_y_54,omitempty"`
+		TabCraftY55     int     `json:"tab_craft_y_55,omitempty"`
+		TabMaterial     string  `json:"tab_material,omitempty"`
+		TabMaterialsNum int     `json:"tab_materials_num,omitempty"`
+	} `json:"tab,omitempty"`
+}
+
+type AutoPriceResponse struct {
+	ChMessage string `json:"chMessage"` // 中文信息
+	EnMessage string `json:"enMessage"` // 英文信息
+}
+
+// @Tags 报价系统
+// @Summary 自动报价
+// @Param Authorization header string true "token"
+// @Success 200 {object} AutoPriceResponse
+// @Router /v1_0/productPrice/auto/generate [post]
+func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
+	myCtx := mycontext.CreateMyContext(c.Keys)
+	//model := domain.CreateModelContext(myCtx)
+	var req AutoPriceReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		//return myCtx, err
+	}
+	var response AutoPriceResponse
+	response.ChMessage = `
+封面印刷：300.00元
+封面材料：2903.15元
+内页印刷：300.00元
+内页材料：108.67元
+装订价格：2500.00元
+工艺费用 ：534.80元
+包装要求 ：400.00元
+ – – – – – – – – – – – – – – – – –  
+生产成本 ：7046.62元
+
+额外成本：0元
+运输成本：0.00元
+ – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – –
+费用合计 ：7046.62元
+`
+	response.EnMessage = `
+Size:140*210mm 
+Cover: 4P 270g PU   Leather  4C+0C  Matt Lamination   +Grey Board 
+Inside page: 4P 210g Gloss Art  Paper  C1S  4C+4C     Poly Bag   Cartoning 
+Wire bound
+ By Ali Assurance    Price    Total: USD1371.76
+`
+	resp.ResponseOk(c, response)
+	return myCtx, nil
+}
