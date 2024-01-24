@@ -9,6 +9,9 @@ import (
 	"frozen-go-cms/resp"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/tealeg/xlsx"
+	"io"
+	"os"
 )
 
 // 工艺
@@ -317,6 +320,7 @@ func AutoPriceConfigGet(c *gin.Context) (*mycontext.MyContext, error) {
 }
 
 type AutoPriceReq struct {
+	Order   bool `json:"order"` // 生成订单
 	Product struct {
 		BindStyle    int     `json:"bind_style,omitempty"`
 		ClientName   string  `json:"client_name,omitempty"`
@@ -537,6 +541,44 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 		TranDesc:        req.Product.TranDesc,
 		TranPrice:       req.Product.TranPrice,
 	}
-	resp.ResponseOk(c, response)
+	if !req.Order {
+		resp.ResponseOk(c, response)
+	} else {
+		templateFile, err := xlsx.OpenFile("template.xlsx")
+		if err != nil {
+			model.Log.Errorf("Failed to open template file:%v", err)
+			return myCtx, err
+		}
+
+		// 在C5格子写入数据
+		sheet := templateFile.Sheets[0]
+		cell := sheet.Cell(4, 2) // C5的索引是(4, 2)
+		cell.Value = "Hello, World!"
+
+		// 保存为临时文件
+		tempFile := "temp.xlsx"
+		err = templateFile.Save(tempFile)
+		if err != nil {
+			model.Log.Errorf("Failed to save temporary file:%v", err)
+			return myCtx, err
+		}
+		defer os.Remove(tempFile)
+
+		// 设置响应头，告诉浏览器发送的是Excel文件
+		c.Writer.Header().Set("Content-Disposition", "attachment; filename=download.xlsx")
+		c.Writer.Header().Set("Content-Type", "application/octet-stream")
+
+		// 读取临时文件并发送给客户端
+		file, err := os.Open(tempFile)
+		if err != nil {
+			model.Log.Errorf("Failed to open temporary file:%v", err)
+			return myCtx, err
+		}
+		defer file.Close()
+
+		_, err = io.Copy(c.Writer, file)
+		if err != nil {
+		}
+	}
 	return myCtx, nil
 }
