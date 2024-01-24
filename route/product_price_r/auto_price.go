@@ -516,8 +516,8 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 		}
 	}
 	priceDetail := AutoPriceDetail{
-		CoverColorPrice:    coverColor.PrintBasePrice,                                  // BasePrice乘以BaseNum?
-		CoverMaterialPrice: coverMaterial.LowPrice * float64(req.Product.PrintNum) * 4, // 印刷跟本书有关的。
+		CoverColorPrice:    coverColor.PrintBasePrice,  // BasePrice乘以BaseNum?
+		CoverMaterialPrice: coverMaterial.LowPrice * 4, // 印刷跟本书有关的。
 		InnerColorPrice:    innerColor.PrintBasePrice,
 		InnerMaterialPrice: innerMaterial.LowPrice * float64(req.Inner.InnerPageNum),
 		TabColorPrice:      tabColorPrice,
