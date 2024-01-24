@@ -323,14 +323,14 @@ type AutoPriceReq struct {
 		DeliveryTime string  `json:"delivery_time,omitempty"`
 		PayExtraDesc string  `json:"pay_extra_desc,omitempty"`
 		PayExtraNum  int     `json:"pay_extra_num,omitempty"`
-		PayExtraUnit int     `json:"pay_extra_unit,omitempty"`
+		PayExtraUnit float64 `json:"pay_extra_unit,omitempty"`
 		PayMethod    string  `json:"pay_method,omitempty"`
 		PriceFactor  float64 `json:"price_factor,omitempty"`
 		PrintNum     int     `json:"print_num,omitempty"`
 		ProductName  string  `json:"product_name,omitempty"`
 		Size         uint64  `json:"size,omitempty"`
 		TranDesc     string  `json:"tran_desc,omitempty"`
-		TranPrice    int     `json:"tran_price,omitempty"`
+		TranPrice    float64 `json:"tran_price,omitempty"`
 	} `json:"product,omitempty"`
 	Cover struct {
 		CoverColor        uint64    `json:"cover_color,omitempty"`
@@ -406,6 +406,10 @@ type AutoPriceResponse struct {
 	AutoPriceDetail AutoPriceDetail        `json:"auto_price_detail"` // 报价明细
 	PayMethod       string                 `json:"pay_method"`        // 支付方式
 	DeliverTimes    string                 `json:"deliver_times"`     // 计划货期
+	TranDesc        string                 `json:"tran_desc"`         // 运输
+	TranPrice       float64                `json:"tran_price"`        // 运输成本
+	PayExtraDesc    string                 `json:"pay_extra_desc"`    // 额外成本
+	PayExtraPrice   float64                `json:"pay_extra_price"`   // 额外成本
 }
 
 // @Tags 报价系统
@@ -528,6 +532,10 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 		AutoPriceDetail: priceDetail,
 		PayMethod:       req.Product.PayMethod,
 		DeliverTimes:    req.Product.DeliveryTime,
+		PayExtraDesc:    req.Product.PayExtraDesc,
+		PayExtraPrice:   req.Product.PayExtraUnit * float64(req.Product.PayExtraNum),
+		TranDesc:        req.Product.TranDesc,
+		TranPrice:       req.Product.TranPrice,
 	}
 	resp.ResponseOk(c, response)
 	return myCtx, nil
