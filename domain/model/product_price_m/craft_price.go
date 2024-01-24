@@ -33,11 +33,15 @@ func CreateCraftPrice(model *domain.Model, color CraftPrice) error {
 }
 
 // 分页获取工艺价格
-func PageCraftPrice(model *domain.Model, offset, limit int) ([]CraftPrice, int64) {
+func PageCraftPrice(model *domain.Model, search string, offset, limit int) ([]CraftPrice, int64) {
 	var res []CraftPrice
 	var total int64
-	if err := model.DB().Model(CraftPrice{}).Where("status = 1").
-		Count(&total).
+	db := model.DB().Model(CraftPrice{}).Where("status = 1")
+	if len(search) > 0 {
+		args := "%" + search + "%"
+		db = db.Where("craft_name like ? or craft_code like ? or craft_body_name like ? or craft_body_code like ?", args, args, args, args)
+	}
+	if err := db.Count(&total).Order("id DESC").
 		Offset(offset).Limit(limit).Find(&res).Error; err != nil {
 		model.Log.Errorf("PageCraftPrice fail:%v", err)
 	}

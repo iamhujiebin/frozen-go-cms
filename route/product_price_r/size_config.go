@@ -1,6 +1,7 @@
 package product_price_r
 
 import (
+	"frozen-go-cms/_const/enum/product_price_e"
 	"frozen-go-cms/common/domain"
 	"frozen-go-cms/common/mycontext"
 	"frozen-go-cms/domain/model/product_price_m"
@@ -13,8 +14,10 @@ import (
 )
 
 type SizeConfigGetReq struct {
-	PageIndex int `form:"page_index" binding:"required"`
-	PageSize  int `form:"page_size" binding:"required"`
+	Search    string                         `form:"search"`
+	Type      product_price_e.SizeConfigType `form:"type"`
+	PageIndex int                            `form:"page_index" binding:"required"`
+	PageSize  int                            `form:"page_size" binding:"required"`
 }
 
 type SizeConfig struct {
@@ -45,6 +48,8 @@ type SizeConfig struct {
 // @Param Authorization header string true "token"
 // @Param page_index query int false "页码"
 // @Param page_size query int false "页数"
+// @Param search query string false "搜索词"
+// @Param type query int false "所属 1:书本 2:天地盖盒子 3:卡片"
 // @Success 200 {object} []SizeConfig
 // @Router /v1_0/productPrice/size [get]
 func SizeConfigGet(c *gin.Context) (*mycontext.MyContext, error) {
@@ -55,7 +60,7 @@ func SizeConfigGet(c *gin.Context) (*mycontext.MyContext, error) {
 		return myCtx, err
 	}
 	offset, limit := (param.PageIndex-1)*param.PageSize, param.PageSize
-	sizes, total := product_price_m.PageSizeConfig(model, offset, limit)
+	sizes, total := product_price_m.PageSizeConfig(model, param.Search, param.Type, offset, limit)
 	var response []SizeConfig
 	for _, v := range sizes {
 		var size SizeConfig

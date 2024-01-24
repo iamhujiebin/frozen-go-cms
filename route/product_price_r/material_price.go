@@ -13,8 +13,9 @@ import (
 )
 
 type MaterialPriceGetReq struct {
-	PageIndex int `form:"page_index" binding:"required"`
-	PageSize  int `form:"page_size" binding:"required"`
+	Search    string `form:"search"`
+	PageIndex int    `form:"page_index" binding:"required"`
+	PageSize  int    `form:"page_size" binding:"required"`
 }
 
 type MaterialPrice struct {
@@ -40,6 +41,7 @@ type MaterialPrice struct {
 // @Param Authorization header string true "token"
 // @Param page_index query int false "页码"
 // @Param page_size query int false "页数"
+// @Param search query string false "搜索词"
 // @Success 200 {object} []MaterialPrice
 // @Router /v1_0/productPrice/material [get]
 func MaterialPriceGet(c *gin.Context) (*mycontext.MyContext, error) {
@@ -50,7 +52,7 @@ func MaterialPriceGet(c *gin.Context) (*mycontext.MyContext, error) {
 		return myCtx, err
 	}
 	offset, limit := (param.PageIndex-1)*param.PageSize, param.PageSize
-	materials, total := product_price_m.PageMaterialPrice(model, offset, limit)
+	materials, total := product_price_m.PageMaterialPrice(model, param.Search, offset, limit)
 	var response []MaterialPrice
 	for _, v := range materials {
 		var material MaterialPrice

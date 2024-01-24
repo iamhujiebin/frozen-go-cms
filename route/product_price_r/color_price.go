@@ -13,8 +13,9 @@ import (
 )
 
 type ColorPriceGetReq struct {
-	PageIndex int `form:"page_index" binding:"required"`
-	PageSize  int `form:"page_size" binding:"required"`
+	Search    string `form:"search"`
+	PageIndex int    `form:"page_index" binding:"required"`
+	PageSize  int    `form:"page_size" binding:"required"`
 }
 
 type ColorPrice struct {
@@ -53,6 +54,7 @@ type ColorPrice struct {
 // @Tags 报价系统
 // @Summary 获取印刷价格
 // @Param Authorization header string true "token"
+// @Param search query string false "搜索词"
 // @Param page_index query int false "页码"
 // @Param page_size query int false "页数"
 // @Success 200 {object} []ColorPrice
@@ -65,7 +67,7 @@ func ColorPriceGet(c *gin.Context) (*mycontext.MyContext, error) {
 		return myCtx, err
 	}
 	offset, limit := (param.PageIndex-1)*param.PageSize, param.PageSize
-	colors, total := product_price_m.PageColorPrice(model, offset, limit)
+	colors, total := product_price_m.PageColorPrice(model, param.Search, offset, limit)
 	var response []ColorPrice
 	for _, v := range colors {
 		var color ColorPrice

@@ -40,11 +40,18 @@ func CreateSizeConfig(model *domain.Model, size SizeConfig) error {
 }
 
 // 分页获取规格尺寸
-func PageSizeConfig(model *domain.Model, offset, limit int) ([]SizeConfig, int64) {
+func PageSizeConfig(model *domain.Model, search string, _type product_price_e.SizeConfigType, offset, limit int) ([]SizeConfig, int64) {
 	var res []SizeConfig
 	var total int64
-	if err := model.DB().Model(SizeConfig{}).Where("status = 1").
-		Count(&total).
+	db := model.DB().Model(SizeConfig{}).Where("status = 1")
+	if _type > 0 {
+		db = db.Where("type = ?", _type)
+	}
+	if len(search) > 0 {
+		args := "%" + search + "%"
+		db = db.Where("size_name like ? or size_code like ?", args, args)
+	}
+	if err := db.Count(&total).Order("id DESC").
 		Offset(offset).Limit(limit).Find(&res).Error; err != nil {
 		model.Log.Errorf("PageSizeConfig fail:%v", err)
 	}

@@ -13,8 +13,9 @@ import (
 )
 
 type CraftPriceGetReq struct {
-	PageIndex int `form:"page_index" binding:"required"`
-	PageSize  int `form:"page_size" binding:"required"`
+	Search    string `form:"search"`
+	PageIndex int    `form:"page_index" binding:"required"`
+	PageSize  int    `form:"page_size" binding:"required"`
 }
 
 type CraftPrice struct {
@@ -42,6 +43,7 @@ type CraftPrice struct {
 // @Param Authorization header string true "token"
 // @Param page_index query int false "页码"
 // @Param page_size query int false "页数"
+// @Param search query string false "搜索词"
 // @Success 200 {object} []CraftPrice
 // @Router /v1_0/productPrice/craft [get]
 func CraftPriceGet(c *gin.Context) (*mycontext.MyContext, error) {
@@ -52,7 +54,7 @@ func CraftPriceGet(c *gin.Context) (*mycontext.MyContext, error) {
 		return myCtx, err
 	}
 	offset, limit := (param.PageIndex-1)*param.PageSize, param.PageSize
-	crafts, total := product_price_m.PageCraftPrice(model, offset, limit)
+	crafts, total := product_price_m.PageCraftPrice(model, param.Search, offset, limit)
 	var response []CraftPrice
 	for _, v := range crafts {
 		var craft CraftPrice

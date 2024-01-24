@@ -46,11 +46,15 @@ func CreateColorPrice(model *domain.Model, price ColorPrice) error {
 }
 
 // 分页获取印刷价格
-func PageColorPrice(model *domain.Model, offset, limit int) ([]ColorPrice, int64) {
+func PageColorPrice(model *domain.Model, search string, offset, limit int) ([]ColorPrice, int64) {
 	var res []ColorPrice
 	var total int64
-	if err := model.DB().Model(ColorPrice{}).Where("status = 1").
-		Count(&total).
+	db := model.DB().Model(ColorPrice{}).Where("status = 1")
+	if len(search) > 0 {
+		args := "%" + search + "%"
+		db = db.Where("color_name like ? or color_code like ?", args, args)
+	}
+	if err := db.Count(&total).Order("id DESC").
 		Offset(offset).Limit(limit).Find(&res).Error; err != nil {
 		model.Log.Errorf("PageColorPrice fail:%v", err)
 	}
