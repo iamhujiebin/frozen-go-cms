@@ -47,7 +47,7 @@ func OrderGet(c *gin.Context) (*mycontext.MyContext, error) {
 	for _, v := range orders {
 		var order Order
 		copier.Copy(&order, v)
-		order.File = "http://129.204.62.195/" + order.File
+		order.File = "http://129.204.62.195:7002/" + order.File
 		order.CreatedTime = v.CreatedTime.Format("2006-01-02 15:04:05")
 		order.UpdatedTime = v.UpdatedTime.Format("2006-01-02 15:04:05")
 		response = append(response, order)
