@@ -51,38 +51,38 @@ type Material struct {
 type Cover struct {
 	Materials []Material `json:"materials"` // 材料
 	Colors    []Color    `json:"colors"`    // 印刷颜色
+	Crafts    []Craft    `json:"crafts"`    // 封面封底的工艺要求
 }
 
 // 内页
 type PageInner struct {
-	DefaultPageNum int        `json:"default_page_num"` // 默认页数
-	Materials      []Material `json:"materials"`        // 材料
-	Colors         []Color    `json:"colors"`           // 印刷颜色
+	DefaultPageNum  int                `json:"default_page_num"`  // 默认页数
+	Materials       []Material         `json:"materials"`         // 材料
+	Colors          []Color            `json:"colors"`            // 印刷颜色
+	PageInnerCrafts map[string][]Craft `json:"page_inner_crafts"` // 内页的工艺要求,bind_style.craft_name->具体的Crafts
 }
 
 // Tab页
 type Tab struct {
-	PageNum   int        `json:"page_num"`  // 页数
-	Materials []Material `json:"materials"` // 材料
-	Colors    []Color    `json:"colors"`    // 印刷颜色
+	PageNum   int                `json:"page_num"`   // 页数
+	Materials []Material         `json:"materials"`  // 材料
+	Colors    []Color            `json:"colors"`     // 印刷颜色
+	TabCrafts map[string][]Craft `json:"tab_crafts"` // tab页的工艺要求, bind_style.craft_name->具体的Crafts
 }
 
 // 产品
 type Product struct {
-	BindStyles          []Craft            `json:"bind_styles"`            // 装订方式
-	Sizes               []Size             `json:"sizes"`                  // 成品尺寸
-	DefaultPrintNum     int                `json:"default_print_num"`      // 印刷本数
-	PayMethods          []string           `json:"pay_methods"`            // 付款方式
-	DeliveryTimes       []string           `json:"delivery_times"`         // 计划货期
-	PriceFactors        []float64          `json:"price_factors"`          // 报价系数
-	Cover               Cover              `json:"cover"`                  // 封面封底
-	CoverCrafts         []Craft            `json:"cover_crafts"`           // 封面封底的工艺要求, bind_style.craft_name->具体的Crafts
-	PageInner           PageInner          `json:"page_inner"`             // 内页
-	PageInnerCrafts     map[string][]Craft `json:"page_inner_crafts"`      // 内页的工艺要求,bind_style.craft_name->具体的Crafts
-	PageInnerBindStyles []Craft            `json:"page_inner_bind_styles"` // 内页的装订要求,bind_style.craft_name->具体的Crafts
-	PageInnerPackage    []Craft            `json:"page_inner_package"`     // 内页的包装要求,bind_style.craft_name->具体的Crafts
-	Tab                 Tab                `json:"tab"`                    // tab页
-	TabCrafts           map[string][]Craft `json:"tab_crafts"`             // tab页的工艺要求, bind_style.craft_name->具体的Crafts
+	BindStyles      []Craft   `json:"bind_styles"`       // 装订方式
+	Sizes           []Size    `json:"sizes"`             // 成品尺寸
+	DefaultPrintNum int       `json:"default_print_num"` // 印刷本数
+	PayMethods      []string  `json:"pay_methods"`       // 付款方式
+	DeliveryTimes   []string  `json:"delivery_times"`    // 计划货期
+	PriceFactors    []float64 `json:"price_factors"`     // 报价系数
+	Cover           Cover     `json:"cover"`             // 封面封底
+	PageInner       PageInner `json:"page_inner"`        // 内页
+	BindCrafts      []Craft   `json:"bind_crafts"`       // 装订要求
+	PackageCrafts   []Craft   `json:"package_crafts"`    // 包装要求
+	Tab             Tab       `json:"tab"`               // tab页
 }
 
 // 自动报价配置
@@ -107,7 +107,7 @@ var (
 	CoverCrafts         = []string{"哑膜", "亮膜", "烫金", "烫银", "局部UV", "击凸", "击凹", "灰板"}                    // 封面封底工艺
 	PageInnerMaterials  = []string{"单铜纸", "双胶纸", "双铜纸", "哑粉纸"}                                          // 内页的材料
 	PageInnerColorsIds  = []uint64{2, 3, 4, 5, 6}                                                       // 彩色,免印                                                                   // 封面封底的颜色
-	PageInnerBindStyles = []string{"YO圈", "护角", "皮筋", "口袋", "丝带", "鸡眼", "装订"}                           // 内页的装订要求-工艺
+	BindCrafts          = []string{"YO圈", "护角", "皮筋", "口袋", "丝带", "鸡眼", "装订"}                           // 装订要求
 	TabMaterials        = []string{"PVC不干胶", "单铜纸", "普通不干胶", "双胶纸", "双铜纸", "哑粉纸"}                       // 内页的材料
 	TabColorsIds        = []uint64{2, 3, 4, 5, 6}                                                       // 彩色,免印                                                                   // 封面封底的颜色
 	YOPageInnerCrafts   = []string{"哑膜", "亮膜", "内分阶模切", "Tab首页加膜", "书签", "书封"}                          // YO内页工艺
@@ -217,17 +217,17 @@ func AutoPriceConfigGet(c *gin.Context) (*mycontext.MyContext, error) {
 		})
 	}
 	// 包装要求
-	var pageInnerPackages []Craft
+	var packageCrafts []Craft
 	packages := product_price_m.GetPackageCrafts(model)
 	for _, v := range packages {
-		pageInnerPackages = append(pageInnerPackages, Craft{
+		packageCrafts = append(packageCrafts, Craft{
 			Id:              v.ID,
 			CraftName:       v.CraftName,
 			CraftBodyName:   v.CraftBodyName,
 			MinSumPrice:     v.MinSumPrice,
 			CraftUnitName:   v.CraftUnit,
+			CraftUnitPrice:  v.CraftPrice,
 			CraftUnitType:   0,
-			CraftUnitPrice:  0,
 			CraftNums:       nil,
 			DefaultCraftNum: 0,
 		})
@@ -243,14 +243,14 @@ func AutoPriceConfigGet(c *gin.Context) (*mycontext.MyContext, error) {
 			Cover: Cover{
 				Materials: coverMaterials,
 				Colors:    coverColors,
+				Crafts:    coverCrafts,
 			},
-			CoverCrafts: coverCrafts,
 			PageInner: PageInner{
 				DefaultPageNum: DefaultPageNum,
 				Materials:      pageInnerMaterials,
 				Colors:         pageInnerColors,
 			},
-			PageInnerPackage: pageInnerPackages,
+			PackageCrafts: packageCrafts,
 			Tab: Tab{
 				PageNum:   DefaultPageNum,
 				Materials: tabMaterials,
@@ -258,10 +258,10 @@ func AutoPriceConfigGet(c *gin.Context) (*mycontext.MyContext, error) {
 			},
 		},
 	}
-	// 内页装订要求
-	pageInnerBindStyles := product_price_m.GetCraftByCraftBodyName(model, PageInnerBindStyles)
-	for _, bindStyle := range pageInnerBindStyles {
-		response.Product.PageInnerBindStyles = append(response.Product.PageInnerBindStyles, Craft{
+	// 装订要求
+	bindCrafts := product_price_m.GetCraftByCraftBodyName(model, BindCrafts)
+	for _, bindStyle := range bindCrafts {
+		response.Product.BindCrafts = append(response.Product.BindCrafts, Craft{
 			Id:             bindStyle.ID,
 			CraftName:      bindStyle.CraftName,
 			MinSumPrice:    bindStyle.MinSumPrice,
@@ -270,10 +270,10 @@ func AutoPriceConfigGet(c *gin.Context) (*mycontext.MyContext, error) {
 		})
 	}
 	// 内页YO装订工艺
-	response.Product.PageInnerCrafts = make(map[string][]Craft)
+	response.Product.PageInner.PageInnerCrafts = make(map[string][]Craft)
 	yoPageInnerCrafts := product_price_m.GetCraftByCraftName(model, YOPageInnerCrafts)
 	for _, v := range yoPageInnerCrafts {
-		response.Product.PageInnerCrafts[YOBindStyle] = append(response.Product.PageInnerCrafts[YOBindStyle], Craft{
+		response.Product.PageInner.PageInnerCrafts[YOBindStyle] = append(response.Product.PageInner.PageInnerCrafts[YOBindStyle], Craft{
 			Id:             v.ID,
 			CraftName:      v.CraftName,
 			MinSumPrice:    v.MinSumPrice,
@@ -284,7 +284,7 @@ func AutoPriceConfigGet(c *gin.Context) (*mycontext.MyContext, error) {
 	// 内页硬壳装订
 	hardPageInnerCrafts := product_price_m.GetCraftByCraftName(model, HardPageInnerCrafts)
 	for _, v := range hardPageInnerCrafts {
-		response.Product.PageInnerCrafts[HardBindStyle] = append(response.Product.PageInnerCrafts[HardBindStyle], Craft{
+		response.Product.PageInner.PageInnerCrafts[HardBindStyle] = append(response.Product.PageInner.PageInnerCrafts[HardBindStyle], Craft{
 			Id:             v.ID,
 			CraftName:      v.CraftName,
 			MinSumPrice:    v.MinSumPrice,
@@ -293,10 +293,10 @@ func AutoPriceConfigGet(c *gin.Context) (*mycontext.MyContext, error) {
 		})
 	}
 	// Tab YO装订工艺
-	response.Product.TabCrafts = make(map[string][]Craft)
+	response.Product.Tab.TabCrafts = make(map[string][]Craft)
 	yoTabCrafts := product_price_m.GetCraftByCraftName(model, YOTabCrafts)
 	for _, v := range yoTabCrafts {
-		response.Product.TabCrafts[YOBindStyle] = append(response.Product.TabCrafts[YOBindStyle], Craft{
+		response.Product.Tab.TabCrafts[YOBindStyle] = append(response.Product.Tab.TabCrafts[YOBindStyle], Craft{
 			Id:             v.ID,
 			CraftName:      v.CraftName,
 			MinSumPrice:    v.MinSumPrice,
@@ -403,6 +403,35 @@ type AutoPriceDetail struct {
 	BindingPrice       float64 `json:"binding_price"`        // 装订价格
 	PackagingPrice     float64 `json:"packaging_price"`      // 包装价格
 	CraftPriceSum      float64 `json:"craft_price_sum"`      // 工艺费用: 封面+内页+tab汇总
+
+	TranDesc      string  `json:"tran_desc"`       // 运输
+	TranPrice     float64 `json:"tran_price"`      // 运输成本
+	PayExtraDesc  string  `json:"pay_extra_desc"`  // 额外成本
+	PayExtraPrice float64 `json:"pay_extra_price"` // 额外成本
+
+	ProducePriceSum float64 `json:"produce_price_sum"` // 生产成本
+	AllPriceSum     float64 `json:"all_price_sum"`     // 费用总和
+}
+
+func (p *AutoPriceDetail) CalProducePriceSum() {
+	p.ProducePriceSum += p.CoverColorPrice
+	p.ProducePriceSum += p.CoverMaterialPrice
+	p.ProducePriceSum += p.InnerColorPrice
+	p.ProducePriceSum += p.InnerMaterialPrice
+	p.ProducePriceSum += p.TabColorPrice
+	p.ProducePriceSum += p.TabMaterialPrice
+	p.ProducePriceSum += p.BindingPrice
+	p.ProducePriceSum += p.PackagingPrice
+	p.ProducePriceSum += p.CraftPriceSum
+}
+
+func (p *AutoPriceDetail) CalAllProductSum() {
+	if p.ProducePriceSum <= 0 { // 简单兼容一下
+		p.CalProducePriceSum()
+	}
+	p.AllPriceSum += p.ProducePriceSum
+	p.AllPriceSum += p.TranPrice
+	p.AllPriceSum += p.PayExtraPrice
 }
 
 type AutoPriceResponse struct {
@@ -410,10 +439,6 @@ type AutoPriceResponse struct {
 	AutoPriceDetail AutoPriceDetail        `json:"auto_price_detail"` // 报价明细
 	PayMethod       string                 `json:"pay_method"`        // 支付方式
 	DeliverTimes    string                 `json:"deliver_times"`     // 计划货期
-	TranDesc        string                 `json:"tran_desc"`         // 运输
-	TranPrice       float64                `json:"tran_price"`        // 运输成本
-	PayExtraDesc    string                 `json:"pay_extra_desc"`    // 额外成本
-	PayExtraPrice   float64                `json:"pay_extra_price"`   // 额外成本
 }
 
 // @Tags 报价系统
@@ -529,17 +554,20 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 		BindingPrice:       bindingPrice,
 		PackagingPrice:     packagePrice,
 		CraftPriceSum:      craftPrice,
+
+		PayExtraDesc:  req.Product.PayExtraDesc,
+		PayExtraPrice: req.Product.PayExtraUnit * float64(req.Product.PayExtraNum),
+		TranDesc:      req.Product.TranDesc,
+		TranPrice:     req.Product.TranPrice,
 	}
+	priceDetail.CalProducePriceSum()
+	priceDetail.CalAllProductSum()
 
 	var response = AutoPriceResponse{
 		ProductDetail:   productDetail,
 		AutoPriceDetail: priceDetail,
 		PayMethod:       req.Product.PayMethod,
 		DeliverTimes:    req.Product.DeliveryTime,
-		PayExtraDesc:    req.Product.PayExtraDesc,
-		PayExtraPrice:   req.Product.PayExtraUnit * float64(req.Product.PayExtraNum),
-		TranDesc:        req.Product.TranDesc,
-		TranPrice:       req.Product.TranPrice,
 	}
 	if !req.Order {
 		resp.ResponseOk(c, response)
