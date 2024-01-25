@@ -128,6 +128,9 @@ func InitRouter() *gin.Engine {
 		productPrice.PUT("/size/:id", wrapper(product_price_r.SizeConfigPut))
 		productPrice.POST("/size", wrapper(product_price_r.SizeConfigPost))
 		productPrice.DELETE("/size/:id", wrapper(product_price_r.SizeConfigDelete))
+		// 生成订单
+		productPrice.GET("/orders", wrapper(product_price_r.OrderGet))
+		productPrice.DELETE("/order/:id", wrapper(product_price_r.OrderDelete))
 	}
 	return r
 }

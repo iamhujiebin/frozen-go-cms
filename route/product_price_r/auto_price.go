@@ -664,14 +664,22 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 		}
 		file.SetCellValue("order", "C5", C5Value)
 
-		tempFile := "temp.xlsx"
+		tempFile := "uploads/file/" + fmt.Sprintf("order_%d.xlsx", time.Now().UnixNano())
 		// 保存修改后的Excel文件
 		err = file.SaveAs(tempFile)
 		if err != nil {
 			return myCtx, err
 		}
+		if err := product_price_m.CreateOrderGenerate(model, product_price_m.OrderGenerate{
+			ProductName: req.Product.ProductName,
+			ClientName:  req.Product.ClientName,
+			File:        tempFile,
+			Status:      1,
+		}); err != nil {
+			return myCtx, err
+		}
 
-		defer os.Remove(tempFile)
+		//defer os.Remove(tempFile)
 
 		// 设置响应头，告诉浏览器发送的是Excel文件
 		c.Writer.Header().Set("Content-Disposition", "attachment; filename=download.xlsx")
@@ -687,6 +695,8 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 
 		_, err = io.Copy(c.Writer, newFile)
 		if err != nil {
+		} else {
+
 		}
 	}
 	return myCtx, nil
