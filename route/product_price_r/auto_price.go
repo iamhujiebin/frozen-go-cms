@@ -113,6 +113,7 @@ var (
 	YOPageInnerCrafts   = []string{"哑膜", "亮膜", "内分阶模切", "Tab首页加膜", "书签", "书封"}                          // YO内页工艺
 	HardPageInnerCrafts = []string{"内分阶模切", "Tab首页加膜", "金边", "针孔", "书签", "书封"}                          // 硬壳内页工艺
 	YOTabCrafts         = []string{"亮膜", "哑膜", "烫金", "烫银", "内分阶模切", "Tab首页加膜"}                          // YO tab页面工艺
+	HardTabCrafts       = []string{"亮膜", "哑膜", "Tab首页加膜"}                                               // 硬壳tab页面工艺
 )
 
 // @Tags 报价系统
@@ -297,6 +298,16 @@ func AutoPriceConfigGet(c *gin.Context) (*mycontext.MyContext, error) {
 	yoTabCrafts := product_price_m.GetCraftByCraftName(model, YOTabCrafts)
 	for _, v := range yoTabCrafts {
 		response.Product.Tab.TabCrafts[YOBindStyle] = append(response.Product.Tab.TabCrafts[YOBindStyle], Craft{
+			Id:             v.ID,
+			CraftName:      v.CraftName,
+			MinSumPrice:    v.MinSumPrice,
+			CraftUnitPrice: v.CraftPrice,
+			CraftUnitName:  v.CraftUnit,
+		})
+	}
+	hardTabCrafts := product_price_m.GetCraftByCraftName(model, HardTabCrafts)
+	for _, v := range hardTabCrafts {
+		response.Product.Tab.TabCrafts[HardBindStyle] = append(response.Product.Tab.TabCrafts[HardBindStyle], Craft{
 			Id:             v.ID,
 			CraftName:      v.CraftName,
 			MinSumPrice:    v.MinSumPrice,
