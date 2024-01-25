@@ -7,11 +7,13 @@ import (
 	"frozen-go-cms/common/mycontext"
 	"frozen-go-cms/domain/model/product_price_m"
 	"frozen-go-cms/resp"
+	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
-	"github.com/tealeg/xlsx"
 	"io"
 	"os"
+	"strings"
+	"time"
 )
 
 // 工艺
@@ -113,7 +115,7 @@ var (
 	YOPageInnerCrafts   = []string{"哑膜", "亮膜", "内分阶模切", "Tab首页加膜", "书签", "书封"}                          // YO内页工艺
 	HardPageInnerCrafts = []string{"内分阶模切", "Tab首页加膜", "金边", "针孔", "书签", "书封"}                          // 硬壳内页工艺
 	YOTabCrafts         = []string{"亮膜", "哑膜", "烫金", "烫银", "内分阶模切", "Tab首页加膜"}                          // YO tab页面工艺
-	HardTabCrafts       = []string{"亮膜", "哑膜", "Tab首页加膜", "啤"}                                          // 硬壳tab页面工艺
+	HardTabCrafts       = []string{"亮膜", "哑膜", "Tab首页加膜", "模切", "内分阶模切"}                                // 硬壳tab页面工艺
 )
 
 // @Tags 报价系统
@@ -547,9 +549,9 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 		craftPrice += v.MinSumPrice
 	}
 	var tabColorPrice, tabMaterialPrice float64
+	tabMaterial := product_price_m.GetMaterialByNameGram(model, req.Tab.TabMaterial, req.Tab.TabMaterialGram)
 	if req.HasTab {
 		tabColorPrice = tabColor.PrintBasePrice
-		tabMaterial := product_price_m.GetMaterialByNameGram(model, req.Tab.TabMaterial, req.Tab.TabMaterialGram)
 		tabMaterialPrice = tabMaterial.LowPrice * float64(req.Tab.TabPageNum)
 		for _, v := range innerCrafts {
 			craftPrice += v.MinSumPrice
@@ -583,24 +585,92 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 	if !req.Order {
 		resp.ResponseOk(c, response)
 	} else {
-		templateFile, err := xlsx.OpenFile("template.xlsx")
+		// 打开Excel文件
+		templateFile := "template.xlsx"
+		if response.AutoPriceDetail.PayExtraPrice > 0 {
+			templateFile = "template_ext.xlsx"
+		}
+		file, err := excelize.OpenFile(templateFile)
 		if err != nil {
-			model.Log.Errorf("Failed to open template file:%v", err)
 			return myCtx, err
 		}
+		// 额外费用
+		if response.AutoPriceDetail.PayExtraPrice > 0 {
+			// C7: 额外费用
+			C7Value := req.Product.PayExtraDesc
+			file.SetCellValue("order", "C7", C7Value)
+			// E7: 运输价格
+			FE7Value := fmt.Sprintf("US$%.2f", response.AutoPriceDetail.PayExtraPrice)
+			file.SetCellValue("order", "E7", FE7Value)
+			file.SetCellValue("order", "F7", FE7Value)
+			// A8: 总的价格
+			A8Value := fmt.Sprintf("TOTAL:US$%.2f", response.AutoPriceDetail.AllPriceSum)
+			file.SetCellValue("order", "A8", A8Value)
+		} else {
+			// A7: 总的价格
+			A7Value := fmt.Sprintf("TOTAL:US$:%.2f", response.AutoPriceDetail.AllPriceSum)
+			file.SetCellValue("order", "A7", A7Value)
+		}
+		// B5:产品名称
+		B5Value := req.Product.ProductName
+		file.SetCellValue("order", "B5", B5Value)
+		// D5:产品数量
+		D5Value := fmt.Sprintf("%d", req.Product.PrintNum)
+		file.SetCellValue("order", "D5", D5Value)
+		// D3: 日期
+		D3Value := fmt.Sprintf(`
+		DATE：%s
+		PINO.：ZFA-202401003
+		`, time.Now().Format("2006-01-02"))
+		file.SetCellValue("order", "D3", D3Value)
+		// C6: Door to Door (运输说明)
+		C6Value := req.Product.TranDesc
+		file.SetCellValue("order", "C6", C6Value)
+		// F6: 运输价格
+		EF6Value := fmt.Sprintf("US$%.2f", response.AutoPriceDetail.TranPrice)
+		file.SetCellValue("order", "E6", EF6Value)
+		file.SetCellValue("order", "F6", EF6Value)
+		// E5: 生产单价
+		if req.Product.PrintNum > 0 {
+			E5Value := fmt.Sprintf("US$%0.2f", response.AutoPriceDetail.ProducePriceSum/float64(req.Product.PrintNum))
+			file.SetCellValue("order", "E5", E5Value)
+		}
+		// F5: 生成总价
+		F5Value := fmt.Sprintf("US$%0.2f", response.AutoPriceDetail.ProducePriceSum)
+		file.SetCellValue("order", "F5", F5Value)
 
-		// 在C5格子写入数据
-		sheet := templateFile.Sheets[0]
-		cell := sheet.Cell(4, 2) // C5的索引是(4, 2)
-		cell.Value = "Hello, World!"
+		// C5: 所有工艺
+		var C5Value string
+		C5Value += fmt.Sprintf("Size:%d*%dmm\n", size.SizeWidth, size.SizeHeight)
+		var coverCraftsEnglish string
+		for _, v := range coverCraftNames {
+			coverCraftsEnglish += getEnglish(v) + " "
+		}
+		C5Value += fmt.Sprintf("Cover:4P %dg %s %s %s \n", // page gram material color crafts
+			coverMaterial.MaterialGram, getEnglish(coverMaterial.MaterialCode), getEnglish(coverColor.ColorCode), coverCraftsEnglish)
+		var innerCraftsEnglish string
+		for _, v := range innerCraftNames {
+			innerCraftsEnglish += getEnglish(v) + ""
+		}
+		C5Value += fmt.Sprintf("Inside page:%dP %dg %s %s %s \n", req.Inner.InnerPageNum, // page gram material color crafts
+			innerMaterial.MaterialGram, getEnglish(innerMaterial.MaterialCode), getEnglish(coverColor.ColorCode), innerCraftsEnglish)
+		if req.HasTab {
+			var tabCraftsEnglish string
+			for _, v := range tabCraftNames {
+				tabCraftsEnglish += getEnglish(v)
+			}
+			C5Value += fmt.Sprintf("Tab:%dP %dg %s %s %s \n", req.Tab.TabPageNum, // page gram material color crafts
+				tabMaterial.MaterialGram, getEnglish(tabMaterial.MaterialCode), getEnglish(coverColor.ColorCode), tabCraftsEnglish)
+		}
+		file.SetCellValue("order", "C5", C5Value)
 
-		// 保存为临时文件
 		tempFile := "temp.xlsx"
-		err = templateFile.Save(tempFile)
+		// 保存修改后的Excel文件
+		err = file.SaveAs(tempFile)
 		if err != nil {
-			model.Log.Errorf("Failed to save temporary file:%v", err)
 			return myCtx, err
 		}
+
 		defer os.Remove(tempFile)
 
 		// 设置响应头，告诉浏览器发送的是Excel文件
@@ -608,16 +678,24 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 		c.Writer.Header().Set("Content-Type", "application/octet-stream")
 
 		// 读取临时文件并发送给客户端
-		file, err := os.Open(tempFile)
+		newFile, err := os.Open(tempFile)
 		if err != nil {
 			model.Log.Errorf("Failed to open temporary file:%v", err)
 			return myCtx, err
 		}
-		defer file.Close()
+		defer newFile.Close()
 
-		_, err = io.Copy(c.Writer, file)
+		_, err = io.Copy(c.Writer, newFile)
 		if err != nil {
 		}
 	}
 	return myCtx, nil
+}
+
+func getEnglish(str string) string {
+	arr := strings.Split(str, "_")
+	if len(arr) == 2 {
+		return arr[1]
+	}
+	return str
 }
