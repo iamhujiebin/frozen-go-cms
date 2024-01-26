@@ -538,11 +538,11 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 	// 工艺价格
 	// 装订、包装、封面|内页|tab工艺要求
 	var bindingPrice, packagePrice, coverCraftPrice, innerCraftPrice, tabCraftPrice float64
-	bindingPrice = getCraftPrice(model, req.Bind.BindCraftIds, req.Bind.BindCraftUnits, req.Bind.BindCraftNums)
-	packagePrice = getCraftPrice(model, req.Package.PackageCraftIds, req.Package.PackageCraftUnits, req.Package.PackageCraftNums)
-	coverCraftPrice = getCraftPrice(model, req.Cover.CoverCraftIds, req.Cover.CoverCraftUnits, req.Cover.CoverCraftNums)
-	innerCraftPrice = getCraftPrice(model, req.Inner.InnerCraftIds, req.Inner.InnerCraftUnits, req.Inner.InnerCraftNums)
-	tabCraftPrice = getCraftPrice(model, req.Tab.TabCraftIds, req.Tab.TabCraftUnits, req.Tab.TabCraftNums)
+	bindingPrice = getCraftPrice(model, req.Product.PrintNum, req.Bind.BindCraftIds, req.Bind.BindCraftUnits, req.Bind.BindCraftNums)
+	packagePrice = getCraftPrice(model, req.Product.PrintNum, req.Package.PackageCraftIds, req.Package.PackageCraftUnits, req.Package.PackageCraftNums)
+	coverCraftPrice = getCraftPrice(model, req.Product.PrintNum, req.Cover.CoverCraftIds, req.Cover.CoverCraftUnits, req.Cover.CoverCraftNums)
+	innerCraftPrice = getCraftPrice(model, req.Product.PrintNum, req.Inner.InnerCraftIds, req.Inner.InnerCraftUnits, req.Inner.InnerCraftNums)
+	tabCraftPrice = getCraftPrice(model, req.Product.PrintNum, req.Tab.TabCraftIds, req.Tab.TabCraftUnits, req.Tab.TabCraftNums)
 	var craftPrice float64
 	craftPrice = coverCraftPrice + innerCraftPrice
 	if req.HasTab {
@@ -750,7 +750,11 @@ func getEnglish(str string) string {
 }
 
 // 获取工艺价格
-func getCraftPrice(model *domain.Model, craftIds []mysql.ID, units []float64, nums []int) float64 {
+// param craftIds:工艺ids
+// param units:工艺单价
+// param nums:工艺数量
+// param printNum:印刷刷量
+func getCraftPrice(model *domain.Model, printNum int, craftIds []mysql.ID, units []float64, nums []int) float64 {
 	defer func() {
 		if err := recover(); err != nil {
 			model.Log.Errorf("getCraftPrice fail:%v", err)
@@ -760,11 +764,15 @@ func getCraftPrice(model *domain.Model, craftIds []mysql.ID, units []float64, nu
 	for i, v := range craftIds {
 		if craft := product_price_m.GetCraftById(model, v); craft.ID > 0 {
 			price := craft.MinSumPrice // 底价
+			var unitPNum float64       // 计算价
 			if craft.CraftUnit == "" || craft.CraftUnit == "件/次" {
-				unitPNum := units[i] * float64(nums[i])
-				if unitPNum > price {
-					price = unitPNum
-				}
+				unitPNum = units[i] * float64(nums[i])
+			}
+			if craft.CraftUnit == "元/本" {
+				unitPNum = units[i] * float64(printNum)
+			}
+			if unitPNum > price {
+				price = unitPNum
 			}
 			// todo 其他craftUnit单位需要对齐
 			priceSum += price
