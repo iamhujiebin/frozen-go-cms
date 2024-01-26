@@ -756,10 +756,10 @@ func getCraftPrice(model *domain.Model, craftIds []mysql.ID, units []float64, nu
 			model.Log.Errorf("getCraftPrice fail:%v", err)
 		}
 	}()
-	var price float64
+	var priceSum float64
 	for i, v := range craftIds {
 		if craft := product_price_m.GetCraftById(model, v); craft.ID > 0 {
-			price = craft.MinSumPrice // 底价
+			price := craft.MinSumPrice // 底价
 			if craft.CraftUnit == "" || craft.CraftUnit == "件/次" {
 				unitPNum := units[i] * float64(nums[i])
 				if unitPNum > price {
@@ -767,7 +767,8 @@ func getCraftPrice(model *domain.Model, craftIds []mysql.ID, units []float64, nu
 				}
 			}
 			// todo 其他craftUnit单位需要对齐
+			priceSum += price
 		}
 	}
-	return price
+	return priceSum
 }
