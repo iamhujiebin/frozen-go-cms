@@ -12,6 +12,8 @@ type OrderGenerate struct {
 	ClientName  string `gorm:"column:client_name"`  //  客户名称
 	File        string `gorm:"column:file"`         //  文件下载路径
 	Status      int    `gorm:"column:status"`
+	Req         string `gorm:"column:req"`
+	Resp        string `gorm:"column:resp"`
 }
 
 func (OrderGenerate) TableName() string {

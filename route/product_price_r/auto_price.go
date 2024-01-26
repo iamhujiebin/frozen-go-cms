@@ -1,6 +1,7 @@
 package product_price_r
 
 import (
+	"encoding/json"
 	"fmt"
 	"frozen-go-cms/_const/enum/product_price_e"
 	"frozen-go-cms/common/domain"
@@ -670,11 +671,15 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 		if err != nil {
 			return myCtx, err
 		}
+		reqJson, _ := json.Marshal(req)
+		respJson, _ := json.Marshal(response)
 		if err := product_price_m.CreateOrderGenerate(model, product_price_m.OrderGenerate{
 			ProductName: req.Product.ProductName,
 			ClientName:  req.Product.ClientName,
 			File:        tempFile,
 			Status:      1,
+			Req:         string(reqJson),
+			Resp:        string(respJson),
 		}); err != nil {
 			return myCtx, err
 		}
