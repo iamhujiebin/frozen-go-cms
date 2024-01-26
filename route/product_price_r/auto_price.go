@@ -6,6 +6,7 @@ import (
 	"frozen-go-cms/_const/enum/product_price_e"
 	"frozen-go-cms/common/domain"
 	"frozen-go-cms/common/mycontext"
+	"frozen-go-cms/common/resource/mysql"
 	"frozen-go-cms/domain/model/product_price_m"
 	"frozen-go-cms/resp"
 	"github.com/360EntSecGroup-Skylar/excelize"
@@ -356,8 +357,7 @@ type AutoPriceReq struct {
 		CoverMaterialGram int       `json:"cover_material_gram,omitempty"`
 		CoverCraftIds     []uint64  `json:"cover_craft_ids"`   // 封面需要用到的工艺ids
 		CoverCraftUnits   []float64 `json:"cover_craft_units"` // 上面对应的单价,要求len(CoverCraftIds)==len(CoverCraftUnits)
-		CoverCraftXs      []float64 `json:"cover_craft_xs"`    // 上面对应的面积x
-		CoverCraftYs      []float64 `json:"cover_craft_ys"`    // 上面对应的面积y
+		CoverCraftNums    []int     `json:"cover_craft_nums"`  // 数量,同上要求
 		CoverOtherCrafts  []struct {
 			Name  string  `json:"name,omitempty"`
 			Price float64 `json:"price,omitempty"`
@@ -368,15 +368,9 @@ type AutoPriceReq struct {
 		InnerMaterial     string    `json:"inner_material,omitempty"`
 		InnerMaterialGram int       `json:"inner_material_gram,omitempty"`
 		InnerPageNum      int       `json:"inner_page_num,omitempty"`
-		InnerCraftIds     []uint64  `json:"inner_craft_ids"`     // 内页需要用到工艺ids
-		InnerCraftUnits   []float64 `json:"inner_craft_units"`   // 上面对应的单价,要求len(InnerCraftIds)==len(InnerCraftUnits)
-		InnerCraftXs      []float64 `json:"inner_craft_xs"`      // 上面对应的面积x
-		InnerCraftYs      []float64 `json:"inner_craft_ys"`      // 上面对应的面积y
-		InnerBindIds      []uint64  `json:"inner_bind_ids"`      // 内页用到装订工艺ids
-		InnerBindUnits    []float64 `json:"inner_bind_units"`    // 上面对应的单价,要求len(InnerBindIds)==len(InnerBindUnits)
-		InnerBindNums     []int     `json:"inner_bind_nums"`     // 上面对应的数量
-		InnerPackageIds   []uint64  `json:"inner_package_ids"`   // 内页用到的包装工艺ids
-		InnerPackageUnits []float64 `json:"inner_package_units"` // 上面对应的单价,要求len(InnerPackageIds)==len(InnerPackageUnits)
+		InnerCraftIds     []uint64  `json:"inner_craft_ids"`   // 内页需要用到工艺ids
+		InnerCraftUnits   []float64 `json:"inner_craft_units"` // 上面对应的单价,要求len(InnerCraftIds)==len(InnerCraftUnits)
+		InnerCraftNums    []int     `json:"inner_craft_nums"`  // 上面对应的单价,要求len(InnerCraftIds)==len(InnerCraftUnits)
 	} `json:"inner,omitempty"`
 	HasTab bool `json:"has_tab"` // 是否要Tab页
 	Tab    struct {
@@ -386,9 +380,18 @@ type AutoPriceReq struct {
 		TabColor        uint64    `json:"tab_color,omitempty"`
 		TabCraftIds     []uint64  `json:"tab_craft_ids"`   // tab面需要用到的工艺ids
 		TabCraftUnits   []float64 `json:"tab_craft_units"` // 上面对应的单价,要求len(TabCraftIds)==len(TabCraftUnits)
-		TabCraftXs      []float64 `json:"tab_craft_xs"`    // 上面对应的面积x
-		TabCraftYs      []float64 `json:"tab_craft_ys"`    // 上面对应的面积y
+		TabCraftNums    []int     `json:"tab_craft_nums"`  //
 	} `json:"tab,omitempty"`
+	Bind struct {
+		BindCraftIds   []uint64  `json:"bind_craft_ids"`   //
+		BindCraftUnits []float64 `json:"bind_craft_units"` //
+		BindCraftNums  []int     `json:"bind_craft_nums"`  //
+	} `json:"bind"`
+	Package struct {
+		PackageCraftIds   []uint64  `json:"package_craft_ids"`
+		PackageCraftUnits []float64 `json:"package_craft_units"`
+		PackageCraftNums  []int     `json:"package_craft_nums"`
+	} `json:"package"`
 }
 
 type ProductDetail struct {
@@ -483,17 +486,19 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 	// 内页
 	innerColor := product_price_m.GetColorPriceById(model, req.Inner.InnerColor)
 	innerCrafts := product_price_m.GetCraftByIds(model, req.Inner.InnerCraftIds)
-	innerBinds := product_price_m.GetCraftByIds(model, req.Inner.InnerBindIds)
-	innerPackages := product_price_m.GetCraftByIds(model, req.Inner.InnerPackageIds)
 	var innerCraftNames []string
 	for _, v := range innerCrafts {
 		innerCraftNames = append(innerCraftNames, v.CraftBodyCode)
 	}
-	for _, v := range innerBinds {
-		innerCraftNames = append(innerCraftNames, v.CraftBodyCode)
+	bindCrafts := product_price_m.GetCraftByIds(model, req.Bind.BindCraftIds)
+	var bindCraftNames []string
+	for _, v := range bindCrafts {
+		bindCraftNames = append(bindCraftNames, v.CraftBodyCode)
 	}
-	for _, v := range innerPackages {
-		innerCraftNames = append(innerCraftNames, v.CraftBodyCode)
+	packageCrafts := product_price_m.GetCraftByIds(model, req.Package.PackageCraftIds)
+	var packageCraftNames []string
+	for _, v := range packageCrafts {
+		packageCraftNames = append(packageCraftNames, v.CraftBodyCode)
 	}
 	// tab页面
 	tabColor := product_price_m.GetColorPriceById(model, req.Tab.TabColor)
@@ -528,46 +533,65 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 			CraftNames:   tabCraftNames,
 		},
 	}
-	// 产品报价 final todo
-	coverMaterial := product_price_m.GetMaterialByNameGram(model, req.Cover.CoverMaterial, req.Cover.CoverMaterialGram)
-	innerMaterial := product_price_m.GetMaterialByNameGram(model, req.Inner.InnerMaterial, req.Inner.InnerMaterialGram)
-	var bindingPrice, packagePrice float64
-	for _, v := range innerBinds {
-		bindingPrice += v.MinSumPrice // todo 这是工艺的价格计算，这个很复杂，需要用面积/个数/单价的，不过有个最低单价
-	}
-	for _, v := range innerPackages {
-		packagePrice += v.MinSumPrice // todo 这是工艺的价格计算，这个很复杂，需要用面积/个数/单价的，不过有个最低单价
-	}
+	// 产品报价
+
 	// 工艺价格
+	// 装订、包装、封面|内页|tab工艺要求
+	var bindingPrice, packagePrice, coverCraftPrice, innerCraftPrice, tabCraftPrice float64
+	bindingPrice = getCraftPrice(model, req.Bind.BindCraftIds, req.Bind.BindCraftUnits, req.Bind.BindCraftNums)
+	packagePrice = getCraftPrice(model, req.Package.PackageCraftIds, req.Package.PackageCraftUnits, req.Package.PackageCraftNums)
+	coverCraftPrice = getCraftPrice(model, req.Cover.CoverCraftIds, req.Cover.CoverCraftUnits, req.Cover.CoverCraftNums)
+	innerCraftPrice = getCraftPrice(model, req.Inner.InnerCraftIds, req.Inner.InnerCraftUnits, req.Inner.InnerCraftNums)
+	tabCraftPrice = getCraftPrice(model, req.Tab.TabCraftIds, req.Tab.TabCraftUnits, req.Tab.TabCraftNums)
 	var craftPrice float64
-	for _, v := range coverCrafts {
-		craftPrice += v.MinSumPrice
+	craftPrice = coverCraftPrice + innerCraftPrice
+	if req.HasTab {
+		craftPrice += tabCraftPrice
 	}
 	for _, v := range req.Cover.CoverOtherCrafts {
 		craftPrice += v.Price
 	}
-	for _, v := range innerCrafts {
-		craftPrice += v.MinSumPrice
-	}
-	var tabColorPrice, tabMaterialPrice float64
-	tabMaterial := product_price_m.GetMaterialByNameGram(model, req.Tab.TabMaterial, req.Tab.TabMaterialGram)
+	// 价格计算
+	// 封面印刷
+	var coverColorPrice, innerColorPrice, tabColorPrice float64
+	coverColorPrice = coverColor.PrintBasePrice // todo 先算了开机费用
+	innerColorPrice = innerColor.PrintBasePrice // todo 先算了开机费用
 	if req.HasTab {
-		tabColorPrice = tabColor.PrintBasePrice
-		tabMaterialPrice = tabMaterial.LowPrice * float64(req.Tab.TabPageNum)
-		for _, v := range innerCrafts {
-			craftPrice += v.MinSumPrice
+		tabColorPrice = tabColor.PrintBasePrice // todo 先算了开机费用
+	}
+	// 封面/内页/tab页材料:
+	coverMaterial := product_price_m.GetMaterialByNameGram(model, req.Cover.CoverMaterial, req.Cover.CoverMaterialGram)
+	innerMaterial := product_price_m.GetMaterialByNameGram(model, req.Inner.InnerMaterial, req.Inner.InnerMaterialGram)
+	tabMaterial := product_price_m.GetMaterialByNameGram(model, req.Tab.TabMaterial, req.Tab.TabMaterialGram)
+	// 大度纸 : 4 / 开数 * 本数 / 500(令数) * 克重 * 吨价 / 1884
+	// 正度纸 : 4 / 开数 * 本数 / 500(令数) * 克重 * 吨价 /2325
+	var coverMaterialPrice, innerMaterialPrice, tabMaterialPrice float64
+	var sizeDivider float64
+	if strings.Contains(size.SizeName, "大度") {
+		sizeDivider = 1884
+	}
+	if strings.Contains(size.SizeName, "正度") {
+		sizeDivider = 2325
+	}
+	if size.SizeOpenNum > 0 && sizeDivider > 0 {
+		coverMaterialPrice = 4 / float64(size.SizeOpenNum) * float64(req.Product.PrintNum) / 500 * float64(coverMaterial.MaterialGram) * coverMaterial.TonPrice / sizeDivider
+		innerMaterialPrice = float64(req.Inner.InnerPageNum) / float64(size.SizeOpenNum) * float64(req.Product.PrintNum) / 500 * float64(innerMaterial.MaterialGram) * innerMaterial.TonPrice / sizeDivider
+		if req.HasTab {
+			tabMaterialPrice = float64(req.Tab.TabPageNum) / float64(size.SizeOpenNum) * float64(req.Product.PrintNum) / 500 * float64(tabMaterial.MaterialGram) * tabMaterial.TonPrice / sizeDivider
 		}
 	}
 	priceDetail := AutoPriceDetail{
-		CoverColorPrice:    coverColor.PrintBasePrice,  // BasePrice乘以BaseNum?
-		CoverMaterialPrice: coverMaterial.LowPrice * 4, // 印刷跟本书有关的。
-		InnerColorPrice:    innerColor.PrintBasePrice,
-		InnerMaterialPrice: innerMaterial.LowPrice * float64(req.Inner.InnerPageNum),
-		TabColorPrice:      tabColorPrice,
+		CoverColorPrice: coverColorPrice, // todo 要问
+		InnerColorPrice: innerColorPrice, // todo 要问
+		TabColorPrice:   tabColorPrice,   // todo 要问
+
+		CoverMaterialPrice: coverMaterialPrice,
+		InnerMaterialPrice: innerMaterialPrice,
 		TabMaterialPrice:   tabMaterialPrice,
-		BindingPrice:       bindingPrice,
-		PackagingPrice:     packagePrice,
-		CraftPriceSum:      craftPrice,
+
+		BindingPrice:   bindingPrice,
+		PackagingPrice: packagePrice,
+		CraftPriceSum:  craftPrice,
 
 		PayExtraDesc:  req.Product.PayExtraDesc,
 		PayExtraPrice: req.Product.PayExtraUnit * float64(req.Product.PayExtraNum),
@@ -663,6 +687,16 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 			C5Value += fmt.Sprintf("Tab:%dP %dg %s %s %s \n", req.Tab.TabPageNum, // page gram material color crafts
 				tabMaterial.MaterialGram, getEnglish(tabMaterial.MaterialCode), getEnglish(coverColor.ColorCode), tabCraftsEnglish)
 		}
+		var bindCraftsEnglish string
+		for _, v := range bindCraftNames {
+			bindCraftsEnglish += getEnglish(v)
+		}
+		C5Value += fmt.Sprintf("bind:%v\n", bindCraftsEnglish)
+		var packageCraftsEnglish string
+		for _, v := range packageCraftNames {
+			packageCraftsEnglish += getEnglish(v)
+		}
+		C5Value += fmt.Sprintf("package:%v\n", packageCraftsEnglish)
 		file.SetCellValue("order", "C5", C5Value)
 
 		tempFile := "uploads/file/" + fmt.Sprintf("order_%d.xlsx", time.Now().UnixNano())
@@ -713,4 +747,27 @@ func getEnglish(str string) string {
 		return arr[1]
 	}
 	return str
+}
+
+// 获取工艺价格
+func getCraftPrice(model *domain.Model, craftIds []mysql.ID, units []float64, nums []int) float64 {
+	defer func() {
+		if err := recover(); err != nil {
+			model.Log.Errorf("getCraftPrice fail:%v", err)
+		}
+	}()
+	var price float64
+	for i, v := range craftIds {
+		if craft := product_price_m.GetCraftById(model, v); craft.ID > 0 {
+			price = craft.MinSumPrice // 底价
+			if craft.CraftUnit == "" || craft.CraftUnit == "件/次" {
+				unitPNum := units[i] * float64(nums[i])
+				if unitPNum > price {
+					price = unitPNum
+				}
+			}
+			// todo 其他craftUnit单位需要对齐
+		}
+	}
+	return price
 }
