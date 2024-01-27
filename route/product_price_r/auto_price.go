@@ -596,19 +596,10 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 	// 大度纸 : 4 / 开数 * 本数 / 500(令数) * 克重 * 吨价 / 1884
 	// 正度纸 : 4 / 开数 * 本数 / 500(令数) * 克重 * 吨价 /2325
 	var coverMaterialPrice, innerMaterialPrice, tabMaterialPrice float64
-	var sizeDivider float64
-	if strings.Contains(size.SizeName, "大度") {
-		sizeDivider = 1884
-	}
-	if strings.Contains(size.SizeName, "正度") {
-		sizeDivider = 2325
-	}
-	if size.SizeOpenNum > 0 && sizeDivider > 0 {
-		coverMaterialPrice = 4 / float64(size.SizeOpenNum) * float64(req.Product.PrintNum) / 500 * float64(coverMaterial.MaterialGram) * coverMaterial.TonPrice / sizeDivider
-		innerMaterialPrice = float64(req.Inner.InnerPageNum) / float64(size.SizeOpenNum) * float64(req.Product.PrintNum) / 500 * float64(innerMaterial.MaterialGram) * innerMaterial.TonPrice / sizeDivider
-		if req.HasTab {
-			tabMaterialPrice = float64(req.Tab.TabPageNum) / float64(size.SizeOpenNum) * float64(req.Product.PrintNum) / 500 * float64(tabMaterial.MaterialGram) * tabMaterial.TonPrice / sizeDivider
-		}
+	coverMaterialPrice = getMaterialPrice(model, coverMaterial, size, 4, req.Product.PrintNum)
+	innerMaterialPrice = getMaterialPrice(model, innerMaterial, size, req.Inner.InnerPageNum, req.Product.PrintNum)
+	if req.HasTab {
+		tabMaterialPrice = getMaterialPrice(model, tabMaterial, size, req.Tab.TabPageNum, req.Product.PrintNum)
 	}
 	priceDetail := AutoPriceDetail{
 		CoverColorPrice: coverColorPrice,
@@ -860,5 +851,20 @@ func getPrintPrice(model *domain.Model, colorPrice product_price_m.ColorPrice, s
 	if actPrice > price {
 		price = actPrice
 	}
+	return price
+}
+
+// 获取材料价格
+// 大度纸 : P数 / 开数 * 本数 / 500(令数) * 克重 * 吨价 / 1884
+// 正度纸 : P数 / 开数 * 本数 / 500(令数) * 克重 * 吨价 /2325
+func getMaterialPrice(model *domain.Model, material product_price_m.MaterialPrice, size product_price_m.SizeConfig, pageNum, printNum int) float64 {
+	var sizeDivider float64
+	if strings.Contains(size.SizeName, "大度") {
+		sizeDivider = 1884
+	}
+	if strings.Contains(size.SizeName, "正度") {
+		sizeDivider = 2325
+	}
+	price := float64(pageNum) / float64(size.SizeOpenNum) * float64(printNum) / 500 * float64(material.MaterialGram) * material.TonPrice / sizeDivider
 	return price
 }
