@@ -2,6 +2,7 @@ package product_price_r
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"frozen-go-cms/_const/enum/product_price_e"
 	"frozen-go-cms/common/domain"
@@ -473,6 +474,12 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 	}
 	// 规格
 	size := product_price_m.GetSizeConfigById(model, req.Product.Size)
+	if size.ID <= 0 {
+		return myCtx, errors.New("请选择成品尺寸")
+	}
+	if size.SizeOpenNum <= 0 {
+		return myCtx, errors.New("您选择的成品尺寸,开数有问题,请到规格尺寸配置检查")
+	}
 	// 封面
 	coverColor := product_price_m.GetColorPriceById(model, req.Cover.CoverColor)
 	coverCrafts := product_price_m.GetCraftByIds(model, req.Cover.CoverCraftIds)
@@ -552,13 +559,22 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 		craftPrice += v.Price
 	}
 	// 价格计算
-	// 封面印刷
+	// 封面/内页/tab印刷
+	// 印刷费要先算出印刷的版数
+	// 	单面印刷：张数/开数*2  color_config中的page_cover字段，1就是单面
+	// 	双面印刷：P数/开数*2   同上,2就是双面
+	//  ps: 张数=P数/2
+	// 最后: 版数*印刷单价=印刷费用
 	var coverColorPrice, innerColorPrice, tabColorPrice float64
-	coverColorPrice = coverColor.PrintBasePrice // todo 先算了开机费用
-	innerColorPrice = innerColor.PrintBasePrice // todo 先算了开机费用
+	// 封面
+	coverColorPrice = getPrintPrice(model, coverColor, size.SizeOpenNum, 4, req.Product.PrintNum)
+	// 内页
+	innerColorPrice = getPrintPrice(model, innerColor, size.SizeOpenNum, req.Inner.InnerPageNum, req.Product.PrintNum)
+	// tab页
 	if req.HasTab {
-		tabColorPrice = tabColor.PrintBasePrice // todo 先算了开机费用
+		tabColorPrice = getPrintPrice(model, tabColor, size.SizeOpenNum, req.Tab.TabPageNum, req.Product.PrintNum)
 	}
+
 	// 封面/内页/tab页材料:
 	coverMaterial := product_price_m.GetMaterialByNameGram(model, req.Cover.CoverMaterial, req.Cover.CoverMaterialGram)
 	innerMaterial := product_price_m.GetMaterialByNameGram(model, req.Inner.InnerMaterial, req.Inner.InnerMaterialGram)
@@ -581,9 +597,9 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 		}
 	}
 	priceDetail := AutoPriceDetail{
-		CoverColorPrice: coverColorPrice, // todo 要问
-		InnerColorPrice: innerColorPrice, // todo 要问
-		TabColorPrice:   tabColorPrice,   // todo 要问
+		CoverColorPrice: coverColorPrice,
+		InnerColorPrice: innerColorPrice,
+		TabColorPrice:   tabColorPrice,
 
 		CoverMaterialPrice: coverMaterialPrice,
 		InnerMaterialPrice: innerMaterialPrice,
@@ -750,7 +766,7 @@ func getEnglish(str string) string {
 }
 
 // 获取工艺价格
-// param printNum:印刷刷量
+// param printNum:印刷本数
 // param pageNum:P数
 // param sizeConfig:规格尺寸
 // param craftIds:工艺ids
@@ -776,7 +792,9 @@ func getCraftPrice(model *domain.Model, printNum, pageNum int, sizeConfig produc
 			}
 			if craft.CraftUnit == "元/m²" {
 				// 单价*面积
-				area := sizeConfig.PerSqmX * sizeConfig.PerSqmY * float64(printNum) * float64(pageNum)
+				// 需要的大纸数: 张数 / 开数 (张数=PageNum/2)
+				papers := pageNum / 2 * printNum / sizeConfig.SizeOpenNum // 大纸数
+				area := sizeConfig.PerSqmX * sizeConfig.PerSqmY * float64(papers)
 				unitPNum = area * units[i]
 			}
 			if unitPNum > price {
@@ -787,4 +805,39 @@ func getCraftPrice(model *domain.Model, printNum, pageNum int, sizeConfig produc
 		}
 	}
 	return priceSum
+}
+
+// 获取印刷价格
+// param colorPrice: 印刷配置
+// param sizeOpenNum: 开数
+// param pageNum: P数
+// param printNum: 打印本数
+// 公式:
+// 印刷费要先算出印刷的版数
+//
+//		单面印刷：张数/开数*2  color_config中的page_cover字段，1就是单面
+//		双面印刷：P数/开数*2   同上,2就是双面
+//	 ps: 张数=P数/2
+//
+// 印刷费用=版数*印刷单价
+// 印刷车头数超一千，需要另加50/千车头(1车头=1大纸)
+// 大纸 = 张数 / 开数 即 P数/2 / 开数
+func getPrintPrice(model *domain.Model, colorPrice product_price_m.ColorPrice, sizeOpenNum, pageNum, printNum int) float64 {
+	price := colorPrice.PrintStartPrice // 开机费
+	var banNum int                      // 版数
+	if colorPrice.PageCover == 1 {      // 单面印刷
+		banNum = pageNum / 2 * printNum / sizeOpenNum * 2 // 版数
+	} else if colorPrice.PageCover == 2 { // 双面印刷
+		banNum = pageNum * printNum / sizeOpenNum * 2
+	}
+	actPrice := colorPrice.PrintBasePrice * float64(banNum)
+	// 加上印刷车头数
+	pages := pageNum / 2 * printNum / sizeOpenNum
+	head := pages / 1000
+	actPrice += float64(head) * colorPrice.PrintBasePrice2
+
+	if actPrice > price {
+		price = actPrice
+	}
+	return price
 }

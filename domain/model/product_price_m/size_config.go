@@ -24,7 +24,7 @@ type SizeConfig struct {
 	DeviceHeight      int64   `gorm:"column:device_height"`       //  上机尺寸高
 	DeviceAddBase     int64   `gorm:"column:device_add_base"`     //  上机尺寸增加基数
 	DeviceAddPosition int64   `gorm:"column:device_add_position"` //  上机尺寸增加位置
-	SizeOpenNum       int64   `gorm:"column:size_open_num"`       //  开数
+	SizeOpenNum       int     `gorm:"column:size_open_num"`       //  开数
 	Index             int64   `gorm:"column:index"`               //  序号
 	CreateIp          string  `gorm:"column:create_ip"`           //  创建用户ip
 	CreateUser        string  `gorm:"column:create_user"`         //  创建用户
