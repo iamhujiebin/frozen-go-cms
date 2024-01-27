@@ -15,6 +15,8 @@ import (
 	"github.com/spf13/cast"
 	"io"
 	"os"
+	"reflect"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -432,6 +434,18 @@ type AutoPriceDetail struct {
 }
 
 func (p *AutoPriceDetail) CalProducePriceSum() {
+	// 先改成两位小数
+	v := reflect.ValueOf(p).Elem()
+	for i := 0; i < v.NumField(); i++ {
+		fieldValue := v.Field(i)
+		fieldType := fieldValue.Type()
+
+		if fieldType.Kind() == reflect.Float64 {
+			newNum, _ := strconv.ParseFloat(fmt.Sprintf("%0.2f", fieldValue.Float()), 64)
+			fieldValue.SetFloat(newNum)
+		}
+	}
+
 	p.ProducePriceSum += p.CoverColorPrice
 	p.ProducePriceSum += p.CoverMaterialPrice
 	p.ProducePriceSum += p.InnerColorPrice
@@ -797,10 +811,17 @@ func getCraftPrice(model *domain.Model, printNum, pageNum int, sizeConfig produc
 				area := sizeConfig.PerSqmX * sizeConfig.PerSqmY * float64(papers)
 				unitPNum = area * units[i]
 			}
+			if craft.CraftUnit == "元/次" {
+				unitPNum = units[i]
+			}
+			if craft.CraftUnit == "元/本" {
+				unitPNum = units[i] * float64(printNum)
+			}
+			// 其他新的单位
+
 			if unitPNum > price {
 				price = unitPNum
 			}
-			// todo 其他craftUnit单位需要对齐
 			priceSum += price
 		}
 	}
