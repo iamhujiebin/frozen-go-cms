@@ -538,11 +538,11 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 	// 工艺价格
 	// 装订、包装、封面|内页|tab工艺要求
 	var bindingPrice, packagePrice, coverCraftPrice, innerCraftPrice, tabCraftPrice float64
-	bindingPrice = getCraftPrice(model, req.Product.PrintNum, req.Bind.BindCraftIds, req.Bind.BindCraftUnits, req.Bind.BindCraftNums)
-	packagePrice = getCraftPrice(model, req.Product.PrintNum, req.Package.PackageCraftIds, req.Package.PackageCraftUnits, req.Package.PackageCraftNums)
-	coverCraftPrice = getCraftPrice(model, req.Product.PrintNum, req.Cover.CoverCraftIds, req.Cover.CoverCraftUnits, req.Cover.CoverCraftNums)
-	innerCraftPrice = getCraftPrice(model, req.Product.PrintNum, req.Inner.InnerCraftIds, req.Inner.InnerCraftUnits, req.Inner.InnerCraftNums)
-	tabCraftPrice = getCraftPrice(model, req.Product.PrintNum, req.Tab.TabCraftIds, req.Tab.TabCraftUnits, req.Tab.TabCraftNums)
+	bindingPrice = getCraftPrice(model, req.Product.PrintNum, 0, size, req.Bind.BindCraftIds, req.Bind.BindCraftUnits, req.Bind.BindCraftNums)
+	packagePrice = getCraftPrice(model, req.Product.PrintNum, 0, size, req.Package.PackageCraftIds, req.Package.PackageCraftUnits, req.Package.PackageCraftNums)
+	coverCraftPrice = getCraftPrice(model, req.Product.PrintNum, 4, size, req.Cover.CoverCraftIds, req.Cover.CoverCraftUnits, req.Cover.CoverCraftNums)
+	innerCraftPrice = getCraftPrice(model, req.Product.PrintNum, req.Inner.InnerPageNum, size, req.Inner.InnerCraftIds, req.Inner.InnerCraftUnits, req.Inner.InnerCraftNums)
+	tabCraftPrice = getCraftPrice(model, req.Product.PrintNum, req.Tab.TabPageNum, size, req.Tab.TabCraftIds, req.Tab.TabCraftUnits, req.Tab.TabCraftNums)
 	var craftPrice float64
 	craftPrice = coverCraftPrice + innerCraftPrice
 	if req.HasTab {
@@ -750,11 +750,14 @@ func getEnglish(str string) string {
 }
 
 // 获取工艺价格
+// param printNum:印刷刷量
+// param pageNum:P数
+// param sizeConfig:规格尺寸
 // param craftIds:工艺ids
 // param units:工艺单价
 // param nums:工艺数量
-// param printNum:印刷刷量
-func getCraftPrice(model *domain.Model, printNum int, craftIds []mysql.ID, units []float64, nums []int) float64 {
+func getCraftPrice(model *domain.Model, printNum, pageNum int, sizeConfig product_price_m.SizeConfig,
+	craftIds []mysql.ID, units []float64, nums []int) float64 {
 	defer func() {
 		if err := recover(); err != nil {
 			model.Log.Errorf("getCraftPrice fail:%v", err)
@@ -770,6 +773,11 @@ func getCraftPrice(model *domain.Model, printNum int, craftIds []mysql.ID, units
 			}
 			if craft.CraftUnit == "元/本" {
 				unitPNum = units[i] * float64(printNum)
+			}
+			if craft.CraftUnit == "元/m²" {
+				// 单价*面积
+				area := sizeConfig.PerSqmX * sizeConfig.PerSqmY * float64(printNum) * float64(pageNum)
+				unitPNum = area * units[i]
 			}
 			if unitPNum > price {
 				price = unitPNum
