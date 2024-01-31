@@ -26,9 +26,9 @@ type ColorPrice struct {
 	PrintLowNum2        int64   `gorm:"column:print_low_num2"`         //  相同印刷损耗开始增加数量
 	PrintBetweenNum2    int64   `gorm:"column:print_between_num2"`     //  相同印刷损耗间隔数量
 	PrintBetweenAddNum2 int64   `gorm:"column:print_between_add_num2"` //  相同印刷损耗间隔增加数量
-	PageCover           int64   `gorm:"column:page_cover"`             //  封面
-	PageInner           int64   `gorm:"column:page_inner"`             //  内页
-	PageTag             int64   `gorm:"column:page_tag"`               //  tag页
+	PageCover           int     `gorm:"column:page_cover"`             //  封面
+	PageInner           int     `gorm:"column:page_inner"`             //  内页
+	PageTag             int     `gorm:"column:page_tag"`               //  tag页
 	Card                int64   `gorm:"column:card"`                   //  卡片
 	Box                 int64   `gorm:"column:box"`                    //  盒子
 	Index               int64   `gorm:"column:index"`                  //  序号

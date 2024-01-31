@@ -581,12 +581,12 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 	// 最后: 版数*印刷单价=印刷费用
 	var coverColorPrice, innerColorPrice, tabColorPrice float64
 	// 封面
-	coverColorPrice = getPrintPrice(model, coverColor, size.SizeOpenNum, 4, req.Product.PrintNum)
+	coverColorPrice = getPrintPrice(model, coverColor, coverColor.PageCover, size.SizeOpenNum, 4, req.Product.PrintNum)
 	// 内页
-	innerColorPrice = getPrintPrice(model, innerColor, size.SizeOpenNum, req.Inner.InnerPageNum, req.Product.PrintNum)
+	innerColorPrice = getPrintPrice(model, innerColor, innerColor.PageInner, size.SizeOpenNum, req.Inner.InnerPageNum, req.Product.PrintNum)
 	// tab页
 	if req.HasTab {
-		tabColorPrice = getPrintPrice(model, tabColor, size.SizeOpenNum, req.Tab.TabPageNum, req.Product.PrintNum)
+		tabColorPrice = getPrintPrice(model, tabColor, tabColor.PageTag, size.SizeOpenNum, req.Tab.TabPageNum, req.Product.PrintNum)
 	}
 
 	// 封面/内页/tab页材料:
@@ -834,13 +834,13 @@ func getCraftPrice(model *domain.Model, printNum, pageNum int, sizeConfig produc
 // 印刷费用=版数*印刷单价
 // 印刷车头数超一千，需要另加50/千车头(1车头=1大纸)
 // 大纸 = 张数 / 开数 即 P数/2 / 开数
-func getPrintPrice(model *domain.Model, colorPrice product_price_m.ColorPrice, sizeOpenNum, pageNum, printNum int) float64 {
+func getPrintPrice(model *domain.Model, colorPrice product_price_m.ColorPrice, singleDouble int, sizeOpenNum, pageNum, printNum int) float64 {
 	price := colorPrice.PrintStartPrice // 开机费
 	var banNum int                      // 版数
-	if colorPrice.PageCover == 1 {      // 单面印刷
-		banNum = pageNum / 2 * printNum / sizeOpenNum * 2 // 版数
-	} else if colorPrice.PageCover == 2 { // 双面印刷
-		banNum = pageNum * printNum / sizeOpenNum * 2
+	if singleDouble == 1 {              // 单面印刷
+		banNum = pageNum * 2 / 2 / sizeOpenNum // 版数
+	} else if singleDouble == 2 { // 双面印刷
+		banNum = pageNum / sizeOpenNum * 2
 	}
 	actPrice := colorPrice.PrintBasePrice * float64(banNum)
 	// 加上印刷车头数
