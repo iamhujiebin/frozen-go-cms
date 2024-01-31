@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 	"io"
+	"math"
 	"os"
 	"reflect"
 	"strconv"
@@ -841,7 +842,7 @@ func getCraftPrice(model *domain.Model, printNum, pageNum int, sizeConfig produc
 //
 // 印刷费用=版数*印刷单价
 // 如果本数>1000,印刷单价+=(本数/1000-1)*50
-// 如果本数-1000后大于0，印刷费=【300+（本数/1000-1）*50】*版数
+// 如果本数-1000后大于0，印刷费=【300+（本数/1000-1）*50】*版数 (本数/1000要向上取整)
 // 印刷车头数超一千，需要另加50/千车头(1车头=1大纸)
 // 大纸 = 张数 / 开数 即 P数/2 / 开数
 // 车头数=大纸 / 版数
@@ -855,7 +856,7 @@ func getPrintPrice(model *domain.Model, colorPrice product_price_m.ColorPrice, s
 	}
 	basePrice := colorPrice.PrintBasePrice
 	if printNum > 1000 {
-		basePrice += (float64(printNum)/float64(colorPrice.PrintBaseNum) - 1) * float64(colorPrice.PrintBetweenAddNum)
+		basePrice += math.Ceil(float64(printNum)/float64(colorPrice.PrintBaseNum)-1) * float64(colorPrice.PrintBetweenAddNum)
 	}
 	actPrice := basePrice * float64(banNum)
 	// 加上印刷车头数
