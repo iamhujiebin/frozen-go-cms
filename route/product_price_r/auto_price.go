@@ -842,6 +842,7 @@ func getCraftPrice(model *domain.Model, printNum, pageNum int, sizeConfig produc
 // 印刷费用=版数*印刷单价
 // 印刷车头数超一千，需要另加50/千车头(1车头=1大纸)
 // 大纸 = 张数 / 开数 即 P数/2 / 开数
+// 车头数=大纸 / 版数
 func getPrintPrice(model *domain.Model, colorPrice product_price_m.ColorPrice, singleDouble int, sizeOpenNum, pageNum, printNum int) float64 {
 	price := colorPrice.PrintStartPrice // 开机费
 	var banNum int                      // 版数
@@ -853,8 +854,11 @@ func getPrintPrice(model *domain.Model, colorPrice product_price_m.ColorPrice, s
 	actPrice := colorPrice.PrintBasePrice * float64(banNum)
 	// 加上印刷车头数
 	pages := pageNum / 2 * printNum / sizeOpenNum
-	head := pages / 1000
-	actPrice += float64(head) * colorPrice.PrintBasePrice2
+	var head float64
+	if banNum > 0 {
+		head = float64(pages) / float64(banNum) / 1000
+	}
+	actPrice += head * colorPrice.PrintBasePrice2
 
 	if actPrice > price {
 		price = actPrice
