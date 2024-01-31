@@ -264,6 +264,9 @@ definitions:
     type: object
   product_price_r.AutoPriceDetail:
     properties:
+      all_price_sum:
+        description: 费用总和
+        type: number
       binding_price:
         description: 装订价格
         type: number
@@ -285,11 +288,26 @@ definitions:
       packaging_price:
         description: 包装价格
         type: number
+      pay_extra_desc:
+        description: 额外成本
+        type: string
+      pay_extra_price:
+        description: 额外成本
+        type: number
+      produce_price_sum:
+        description: 生产成本
+        type: number
       tab_color_price:
         description: tab页印刷价格
         type: number
       tab_material_price:
         description: tab页材料价格
+        type: number
+      tran_desc:
+        description: 运输
+        type: string
+      tran_price:
+        description: 运输成本
         type: number
     type: object
   product_price_r.AutoPriceProductDetail:
@@ -310,6 +328,21 @@ definitions:
     type: object
   product_price_r.AutoPriceReq:
     properties:
+      bind:
+        properties:
+          bind_craft_ids:
+            items:
+              type: integer
+            type: array
+          bind_craft_nums:
+            items:
+              type: integer
+            type: array
+          bind_craft_units:
+            items:
+              type: number
+            type: array
+        type: object
       cover:
         properties:
           cover_color:
@@ -319,18 +352,13 @@ definitions:
             items:
               type: integer
             type: array
+          cover_craft_nums:
+            description: 数量,同上要求
+            items:
+              type: integer
+            type: array
           cover_craft_units:
             description: 上面对应的单价,要求len(CoverCraftIds)==len(CoverCraftUnits)
-            items:
-              type: number
-            type: array
-          cover_craft_xs:
-            description: 上面对应的面积x
-            items:
-              type: number
-            type: array
-          cover_craft_ys:
-            description: 上面对应的面积y
             items:
               type: number
             type: array
@@ -344,7 +372,7 @@ definitions:
                 name:
                   type: string
                 price:
-                  type: string
+                  type: number
               type: object
             type: array
         type: object
@@ -353,25 +381,15 @@ definitions:
         type: boolean
       inner:
         properties:
-          inner_bind_ids:
-            description: 内页用到装订工艺ids
-            items:
-              type: integer
-            type: array
-          inner_bind_nums:
-            description: 上面对应的数量
-            items:
-              type: integer
-            type: array
-          inner_bind_units:
-            description: 上面对应的单价,要求len(InnerBindIds)==len(InnerBindUnits)
-            items:
-              type: number
-            type: array
           inner_color:
             type: integer
           inner_craft_ids:
             description: 内页需要用到工艺ids
+            items:
+              type: integer
+            type: array
+          inner_craft_nums:
+            description: 上面对应的单价,要求len(InnerCraftIds)==len(InnerCraftUnits)
             items:
               type: integer
             type: array
@@ -380,32 +398,30 @@ definitions:
             items:
               type: number
             type: array
-          inner_craft_xs:
-            description: 上面对应的面积x
-            items:
-              type: number
-            type: array
-          inner_craft_ys:
-            description: 上面对应的面积y
-            items:
-              type: number
-            type: array
           inner_material:
             type: string
           inner_material_gram:
             type: integer
-          inner_package_ids:
-            description: 内页用到的包装工艺ids
+          inner_page_num:
+            type: integer
+        type: object
+      order:
+        description: 生成订单
+        type: boolean
+      package:
+        properties:
+          package_craft_ids:
             items:
               type: integer
             type: array
-          inner_package_units:
-            description: 上面对应的单价,要求len(InnerPackageIds)==len(InnerPackageUnits)
+          package_craft_nums:
+            items:
+              type: integer
+            type: array
+          package_craft_units:
             items:
               type: number
             type: array
-          inner_page_num:
-            type: integer
         type: object
       product:
         properties:
@@ -420,7 +436,7 @@ definitions:
           pay_extra_num:
             type: integer
           pay_extra_unit:
-            type: integer
+            type: number
           pay_method:
             type: string
           price_factor:
@@ -434,7 +450,7 @@ definitions:
           tran_desc:
             type: string
           tran_price:
-            type: integer
+            type: number
         type: object
       tab:
         properties:
@@ -445,18 +461,12 @@ definitions:
             items:
               type: integer
             type: array
+          tab_craft_nums:
+            items:
+              type: integer
+            type: array
           tab_craft_units:
             description: 上面对应的单价,要求len(TabCraftIds)==len(TabCraftUnits)
-            items:
-              type: number
-            type: array
-          tab_craft_xs:
-            description: 上面对应的面积x
-            items:
-              type: number
-            type: array
-          tab_craft_ys:
-            description: 上面对应的面积y
             items:
               type: number
             type: array
@@ -737,6 +747,11 @@ definitions:
         description: 印刷颜色
         items:
           $ref: '#/definitions/product_price_r.Color'
+        type: array
+      crafts:
+        description: 封面封底的工艺要求
+        items:
+          $ref: '#/definitions/product_price_r.Craft'
         type: array
       materials:
         description: 材料
@@ -1060,6 +1075,27 @@ definitions:
         description: 吨价
         type: number
     type: object
+  product_price_r.Order:
+    properties:
+      client_name:
+        description: 客户名称
+        type: string
+      created_time:
+        description: 创建时间
+        type: string
+      file:
+        description: 文件路径
+        type: string
+      id:
+        description: id
+        type: integer
+      product_name:
+        description: 产品名称
+        type: string
+      updated_time:
+        description: 更新时间
+        type: string
+    type: object
   product_price_r.PageInner:
     properties:
       colors:
@@ -1075,9 +1111,21 @@ definitions:
         items:
           $ref: '#/definitions/product_price_r.Material'
         type: array
+      page_inner_crafts:
+        additionalProperties:
+          items:
+            $ref: '#/definitions/product_price_r.Craft'
+          type: array
+        description: 内页的工艺要求,bind_style.craft_name->具体的Crafts
+        type: object
     type: object
   product_price_r.Product:
     properties:
+      bind_crafts:
+        description: 装订要求
+        items:
+          $ref: '#/definitions/product_price_r.Craft'
+        type: array
       bind_styles:
         description: 装订方式
         items:
@@ -1087,11 +1135,6 @@ definitions:
         $ref: '#/definitions/product_price_r.Cover'
         description: 封面封底
         type: object
-      cover_crafts:
-        description: 封面封底的工艺要求, bind_style.craft_name->具体的Crafts
-        items:
-          $ref: '#/definitions/product_price_r.Craft'
-        type: array
       default_print_num:
         description: 印刷本数
         type: integer
@@ -1100,27 +1143,15 @@ definitions:
         items:
           type: string
         type: array
+      package_crafts:
+        description: 包装要求
+        items:
+          $ref: '#/definitions/product_price_r.Craft'
+        type: array
       page_inner:
         $ref: '#/definitions/product_price_r.PageInner'
         description: 内页
         type: object
-      page_inner_bind_styles:
-        description: 内页的装订要求,bind_style.craft_name->具体的Crafts
-        items:
-          $ref: '#/definitions/product_price_r.Craft'
-        type: array
-      page_inner_crafts:
-        additionalProperties:
-          items:
-            $ref: '#/definitions/product_price_r.Craft'
-          type: array
-        description: 内页的工艺要求,bind_style.craft_name->具体的Crafts
-        type: object
-      page_inner_package:
-        description: 内页的包装要求,bind_style.craft_name->具体的Crafts
-        items:
-          $ref: '#/definitions/product_price_r.Craft'
-        type: array
       pay_methods:
         description: 付款方式
         items:
@@ -1139,13 +1170,6 @@ definitions:
       tab:
         $ref: '#/definitions/product_price_r.Tab'
         description: tab页
-        type: object
-      tab_crafts:
-        additionalProperties:
-          items:
-            $ref: '#/definitions/product_price_r.Craft'
-          type: array
-        description: tab页的工艺要求, bind_style.craft_name->具体的Crafts
         type: object
     type: object
   product_price_r.ProductDetail:
@@ -1422,6 +1446,13 @@ definitions:
       page_num:
         description: 页数
         type: integer
+      tab_crafts:
+        additionalProperties:
+          items:
+            $ref: '#/definitions/product_price_r.Craft'
+          type: array
+        description: tab页的工艺要求, bind_style.craft_name->具体的Crafts
+        type: object
     type: object
   todo_r.AddTodoListReq:
     properties:
@@ -2186,6 +2217,10 @@ paths:
         name: Authorization
         required: true
         type: string
+      - description: 搜索词
+        in: query
+        name: search
+        type: string
       - description: 页码
         in: query
         name: page_index
@@ -2279,6 +2314,10 @@ paths:
         in: query
         name: page_size
         type: integer
+      - description: 搜索词
+        in: query
+        name: search
+        type: string
       responses:
         "200":
           description: OK
@@ -2364,6 +2403,10 @@ paths:
         in: query
         name: page_size
         type: integer
+      - description: 搜索词
+        in: query
+        name: search
+        type: string
       responses:
         "200":
           description: OK
@@ -2433,6 +2476,54 @@ paths:
       summary: 更新材料价格
       tags:
       - 报价系统
+  /v1_0/productPrice/order/:id:
+    delete:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 记录id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: 删除历史订单
+      tags:
+      - 报价系统
+  /v1_0/productPrice/orders:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 页码
+        in: query
+        name: page_index
+        type: integer
+      - description: 页数
+        in: query
+        name: page_size
+        type: integer
+      - description: 搜索词
+        in: query
+        name: search
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/product_price_r.Order'
+            type: array
+      summary: 订单列表
+      tags:
+      - 报价系统
   /v1_0/productPrice/size:
     get:
       parameters:
@@ -2448,6 +2539,14 @@ paths:
       - description: 页数
         in: query
         name: page_size
+        type: integer
+      - description: 搜索词
+        in: query
+        name: search
+        type: string
+      - description: 所属 1:书本 2:天地盖盒子 3:卡片
+        in: query
+        name: type
         type: integer
       responses:
         "200":

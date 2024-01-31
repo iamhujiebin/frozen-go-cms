@@ -1084,6 +1084,12 @@ var doc = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "搜索词",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "页码",
                         "name": "page_index",
@@ -1222,6 +1228,12 @@ var doc = `{
                         "description": "页数",
                         "name": "page_size",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "搜索词",
+                        "name": "search",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1350,6 +1362,12 @@ var doc = `{
                         "description": "页数",
                         "name": "page_size",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "搜索词",
+                        "name": "search",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1453,6 +1471,79 @@ var doc = `{
                 }
             }
         },
+        "/v1_0/productPrice/order/:id": {
+            "delete": {
+                "tags": [
+                    "报价系统"
+                ],
+                "summary": "删除历史订单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "记录id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/v1_0/productPrice/orders": {
+            "get": {
+                "tags": [
+                    "报价系统"
+                ],
+                "summary": "订单列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page_index",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页数",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "搜索词",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/product_price_r.Order"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1_0/productPrice/size": {
             "get": {
                 "tags": [
@@ -1477,6 +1568,18 @@ var doc = `{
                         "type": "integer",
                         "description": "页数",
                         "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "搜索词",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "所属 1:书本 2:天地盖盒子 3:卡片",
+                        "name": "type",
                         "in": "query"
                     }
                 ],
@@ -2115,6 +2218,10 @@ var doc = `{
         "product_price_r.AutoPriceDetail": {
             "type": "object",
             "properties": {
+                "all_price_sum": {
+                    "description": "费用总和",
+                    "type": "number"
+                },
                 "binding_price": {
                     "description": "装订价格",
                     "type": "number"
@@ -2143,12 +2250,32 @@ var doc = `{
                     "description": "包装价格",
                     "type": "number"
                 },
+                "pay_extra_desc": {
+                    "description": "额外成本",
+                    "type": "string"
+                },
+                "pay_extra_price": {
+                    "description": "额外成本",
+                    "type": "number"
+                },
+                "produce_price_sum": {
+                    "description": "生产成本",
+                    "type": "number"
+                },
                 "tab_color_price": {
                     "description": "tab页印刷价格",
                     "type": "number"
                 },
                 "tab_material_price": {
                     "description": "tab页材料价格",
+                    "type": "number"
+                },
+                "tran_desc": {
+                    "description": "运输",
+                    "type": "string"
+                },
+                "tran_price": {
+                    "description": "运输成本",
                     "type": "number"
                 }
             }
@@ -2179,6 +2306,29 @@ var doc = `{
         "product_price_r.AutoPriceReq": {
             "type": "object",
             "properties": {
+                "bind": {
+                    "type": "object",
+                    "properties": {
+                        "bind_craft_ids": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "bind_craft_nums": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "bind_craft_units": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        }
+                    }
+                },
                 "cover": {
                     "type": "object",
                     "properties": {
@@ -2192,22 +2342,15 @@ var doc = `{
                                 "type": "integer"
                             }
                         },
+                        "cover_craft_nums": {
+                            "description": "数量,同上要求",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
                         "cover_craft_units": {
                             "description": "上面对应的单价,要求len(CoverCraftIds)==len(CoverCraftUnits)",
-                            "type": "array",
-                            "items": {
-                                "type": "number"
-                            }
-                        },
-                        "cover_craft_xs": {
-                            "description": "上面对应的面积x",
-                            "type": "array",
-                            "items": {
-                                "type": "number"
-                            }
-                        },
-                        "cover_craft_ys": {
-                            "description": "上面对应的面积y",
                             "type": "array",
                             "items": {
                                 "type": "number"
@@ -2228,7 +2371,7 @@ var doc = `{
                                         "type": "string"
                                     },
                                     "price": {
-                                        "type": "string"
+                                        "type": "number"
                                     }
                                 }
                             }
@@ -2242,32 +2385,18 @@ var doc = `{
                 "inner": {
                     "type": "object",
                     "properties": {
-                        "inner_bind_ids": {
-                            "description": "内页用到装订工艺ids",
-                            "type": "array",
-                            "items": {
-                                "type": "integer"
-                            }
-                        },
-                        "inner_bind_nums": {
-                            "description": "上面对应的数量",
-                            "type": "array",
-                            "items": {
-                                "type": "integer"
-                            }
-                        },
-                        "inner_bind_units": {
-                            "description": "上面对应的单价,要求len(InnerBindIds)==len(InnerBindUnits)",
-                            "type": "array",
-                            "items": {
-                                "type": "number"
-                            }
-                        },
                         "inner_color": {
                             "type": "integer"
                         },
                         "inner_craft_ids": {
                             "description": "内页需要用到工艺ids",
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "inner_craft_nums": {
+                            "description": "上面对应的单价,要求len(InnerCraftIds)==len(InnerCraftUnits)",
                             "type": "array",
                             "items": {
                                 "type": "integer"
@@ -2280,42 +2409,41 @@ var doc = `{
                                 "type": "number"
                             }
                         },
-                        "inner_craft_xs": {
-                            "description": "上面对应的面积x",
-                            "type": "array",
-                            "items": {
-                                "type": "number"
-                            }
-                        },
-                        "inner_craft_ys": {
-                            "description": "上面对应的面积y",
-                            "type": "array",
-                            "items": {
-                                "type": "number"
-                            }
-                        },
                         "inner_material": {
                             "type": "string"
                         },
                         "inner_material_gram": {
                             "type": "integer"
                         },
-                        "inner_package_ids": {
-                            "description": "内页用到的包装工艺ids",
+                        "inner_page_num": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "order": {
+                    "description": "生成订单",
+                    "type": "boolean"
+                },
+                "package": {
+                    "type": "object",
+                    "properties": {
+                        "package_craft_ids": {
                             "type": "array",
                             "items": {
                                 "type": "integer"
                             }
                         },
-                        "inner_package_units": {
-                            "description": "上面对应的单价,要求len(InnerPackageIds)==len(InnerPackageUnits)",
+                        "package_craft_nums": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "package_craft_units": {
                             "type": "array",
                             "items": {
                                 "type": "number"
                             }
-                        },
-                        "inner_page_num": {
-                            "type": "integer"
                         }
                     }
                 },
@@ -2338,7 +2466,7 @@ var doc = `{
                             "type": "integer"
                         },
                         "pay_extra_unit": {
-                            "type": "integer"
+                            "type": "number"
                         },
                         "pay_method": {
                             "type": "string"
@@ -2359,7 +2487,7 @@ var doc = `{
                             "type": "string"
                         },
                         "tran_price": {
-                            "type": "integer"
+                            "type": "number"
                         }
                     }
                 },
@@ -2376,22 +2504,14 @@ var doc = `{
                                 "type": "integer"
                             }
                         },
+                        "tab_craft_nums": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
                         "tab_craft_units": {
                             "description": "上面对应的单价,要求len(TabCraftIds)==len(TabCraftUnits)",
-                            "type": "array",
-                            "items": {
-                                "type": "number"
-                            }
-                        },
-                        "tab_craft_xs": {
-                            "description": "上面对应的面积x",
-                            "type": "array",
-                            "items": {
-                                "type": "number"
-                            }
-                        },
-                        "tab_craft_ys": {
-                            "description": "上面对应的面积y",
                             "type": "array",
                             "items": {
                                 "type": "number"
@@ -2773,6 +2893,13 @@ var doc = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/product_price_r.Color"
+                    }
+                },
+                "crafts": {
+                    "description": "封面封底的工艺要求",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/product_price_r.Craft"
                     }
                 },
                 "materials": {
@@ -3214,6 +3341,35 @@ var doc = `{
                 }
             }
         },
+        "product_price_r.Order": {
+            "type": "object",
+            "properties": {
+                "client_name": {
+                    "description": "客户名称",
+                    "type": "string"
+                },
+                "created_time": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "file": {
+                    "description": "文件路径",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "id",
+                    "type": "integer"
+                },
+                "product_name": {
+                    "description": "产品名称",
+                    "type": "string"
+                },
+                "updated_time": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
         "product_price_r.PageInner": {
             "type": "object",
             "properties": {
@@ -3234,12 +3390,29 @@ var doc = `{
                     "items": {
                         "$ref": "#/definitions/product_price_r.Material"
                     }
+                },
+                "page_inner_crafts": {
+                    "description": "内页的工艺要求,bind_style.craft_name-\u003e具体的Crafts",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/product_price_r.Craft"
+                        }
+                    }
                 }
             }
         },
         "product_price_r.Product": {
             "type": "object",
             "properties": {
+                "bind_crafts": {
+                    "description": "装订要求",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/product_price_r.Craft"
+                    }
+                },
                 "bind_styles": {
                     "description": "装订方式",
                     "type": "array",
@@ -3252,13 +3425,6 @@ var doc = `{
                     "type": "object",
                     "$ref": "#/definitions/product_price_r.Cover"
                 },
-                "cover_crafts": {
-                    "description": "封面封底的工艺要求, bind_style.craft_name-\u003e具体的Crafts",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/product_price_r.Craft"
-                    }
-                },
                 "default_print_num": {
                     "description": "印刷本数",
                     "type": "integer"
@@ -3270,34 +3436,17 @@ var doc = `{
                         "type": "string"
                     }
                 },
+                "package_crafts": {
+                    "description": "包装要求",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/product_price_r.Craft"
+                    }
+                },
                 "page_inner": {
                     "description": "内页",
                     "type": "object",
                     "$ref": "#/definitions/product_price_r.PageInner"
-                },
-                "page_inner_bind_styles": {
-                    "description": "内页的装订要求,bind_style.craft_name-\u003e具体的Crafts",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/product_price_r.Craft"
-                    }
-                },
-                "page_inner_crafts": {
-                    "description": "内页的工艺要求,bind_style.craft_name-\u003e具体的Crafts",
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/definitions/product_price_r.Craft"
-                        }
-                    }
-                },
-                "page_inner_package": {
-                    "description": "内页的包装要求,bind_style.craft_name-\u003e具体的Crafts",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/product_price_r.Craft"
-                    }
                 },
                 "pay_methods": {
                     "description": "付款方式",
@@ -3324,16 +3473,6 @@ var doc = `{
                     "description": "tab页",
                     "type": "object",
                     "$ref": "#/definitions/product_price_r.Tab"
-                },
-                "tab_crafts": {
-                    "description": "tab页的工艺要求, bind_style.craft_name-\u003e具体的Crafts",
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/definitions/product_price_r.Craft"
-                        }
-                    }
                 }
             }
         },
@@ -3710,6 +3849,16 @@ var doc = `{
                 "page_num": {
                     "description": "页数",
                     "type": "integer"
+                },
+                "tab_crafts": {
+                    "description": "tab页的工艺要求, bind_style.craft_name-\u003e具体的Crafts",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/product_price_r.Craft"
+                        }
+                    }
                 }
             }
         },

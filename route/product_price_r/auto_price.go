@@ -854,11 +854,11 @@ func getPrintPrice(model *domain.Model, colorPrice product_price_m.ColorPrice, s
 	actPrice := colorPrice.PrintBasePrice * float64(banNum)
 	// 加上印刷车头数
 	pages := pageNum / 2 * printNum / sizeOpenNum
-	var head float64
+	var head int
 	if banNum > 0 {
-		head = float64(pages) / float64(banNum) / 1000
+		head = pages / banNum / 1000
 	}
-	actPrice += head * colorPrice.PrintBasePrice2
+	actPrice += float64(head) * colorPrice.PrintBasePrice2
 
 	if actPrice > price {
 		price = actPrice
