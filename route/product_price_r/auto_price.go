@@ -629,6 +629,14 @@ func AutoPriceGenerate(c *gin.Context) (*mycontext.MyContext, error) {
 		DeliverTimes:    req.Product.DeliveryTime,
 	}
 	if !req.Order {
+		reqJson, _ := json.Marshal(req)
+		respJson, _ := json.Marshal(response)
+		_ = product_price_m.CreateGenerateLog(model, product_price_m.GenerateLog{
+			ProductName: req.Product.ProductName,
+			ClientName:  req.Product.ClientName,
+			Req:         string(reqJson),
+			Resp:        string(respJson),
+		})
 		resp.ResponseOk(c, response)
 	} else {
 		// 打开Excel文件
