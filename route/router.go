@@ -5,6 +5,7 @@ import (
 	"frozen-go-cms/route/ai_r"
 	"frozen-go-cms/route/album_r"
 	"frozen-go-cms/route/article_r"
+	"frozen-go-cms/route/casbin_r"
 	"frozen-go-cms/route/channel_r"
 	"frozen-go-cms/route/chatgpt_r"
 	"frozen-go-cms/route/music_r"
@@ -32,6 +33,14 @@ func InitRouter() *gin.Engine {
 	noLogin.Use(ExceptionHandle, LoggerHandle)
 	v1 := noLogin.Group("/v1_0")
 	v1.POST("authorizations", wrapper(user_r.UserAuth))
+
+	casbin := v1.Group("casbin", JWTApiHandle)
+	{
+		casbin.POST("create", wrapper(casbin_r.CasbinCreate))
+		casbin.POST("remove", wrapper(casbin_r.CasbinRemove))
+		casbin.POST("list", wrapper(casbin_r.CasbinList))
+		casbin.GET("test", CasbinHandle, wrapper(casbin_r.CasbinTest))
+	}
 
 	user := v1.Group("user")
 	user.Use(JWTApiHandle)

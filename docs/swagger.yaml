@@ -174,6 +174,34 @@ definitions:
     - title
     - type
     type: object
+  casbin_r.CasbinCreateRequest:
+    properties:
+      casbin_infos:
+        items:
+          $ref: '#/definitions/casbin_r.CasbinInfo'
+        type: array
+      role_id:
+        type: string
+    type: object
+  casbin_r.CasbinInfo:
+    properties:
+      method:
+        type: string
+      path:
+        type: string
+    type: object
+  casbin_r.CasbinListRequest:
+    properties:
+      role_id:
+        type: string
+    type: object
+  casbin_r.CasbinListResponse:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/casbin_r.CasbinInfo'
+        type: array
+    type: object
   channel_r.ChannelData:
     properties:
       id:
@@ -1692,6 +1720,37 @@ paths:
       summary: 登录
       tags:
       - 用户
+  /v1_0/casbin/create:
+    post:
+      parameters:
+      - description: 请求体
+        in: body
+        name: CasbinCreateRequest
+        required: true
+        schema:
+          $ref: '#/definitions/casbin_r.CasbinCreateRequest'
+      responses:
+        "200": {}
+      summary: 创建权限
+      tags:
+      - 权限管理
+  /v1_0/casbin/list:
+    post:
+      parameters:
+      - description: 请求体
+        in: body
+        name: CasbinListRequest
+        required: true
+        schema:
+          $ref: '#/definitions/casbin_r.CasbinListRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/casbin_r.CasbinListResponse'
+      summary: 权限列表
+      tags:
+      - 权限管理
   /v1_0/channels:
     get:
       responses:

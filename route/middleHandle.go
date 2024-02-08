@@ -4,9 +4,12 @@ import (
 	"frozen-go-cms/common/mycontext"
 	"frozen-go-cms/common/mylogrus"
 	"frozen-go-cms/common/resource/config"
+	"frozen-go-cms/domain/model/casbin_m"
+	"frozen-go-cms/myerr/bizerr"
 	"frozen-go-cms/req/jwt"
 	"frozen-go-cms/resp"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 	"net/http"
 	"strings"
 	"time"
@@ -100,5 +103,29 @@ func Cors() gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusNoContent)
 		}
 		c.Next()
+	}
+}
+
+func CasbinHandle(c *gin.Context) {
+	// 获取请求的URI
+	obj := c.Request.URL.RequestURI()
+	// 获取请求方法
+	act := c.Request.Method
+	// 获取用户的角色
+	sub, _ := c.Get(mycontext.USERID)
+	e := casbin_m.Casbin()
+	// 判断策略中是否存在
+	success, err := e.Enforce(cast.ToString(sub), obj, act)
+	if err != nil {
+		resp.ResponseBusiness(c, bizerr.AuthFail)
+		c.Abort()
+		return
+	}
+	if success {
+		c.Next()
+	} else {
+		resp.ResponseBusiness(c, bizerr.AuthFail)
+		c.Abort()
+		return
 	}
 }

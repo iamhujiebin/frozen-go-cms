@@ -260,6 +260,55 @@
                 }
             }
         },
+        "/v1_0/casbin/create": {
+            "post": {
+                "tags": [
+                    "权限管理"
+                ],
+                "summary": "创建权限",
+                "parameters": [
+                    {
+                        "description": "请求体",
+                        "name": "CasbinCreateRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/casbin_r.CasbinCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/v1_0/casbin/list": {
+            "post": {
+                "tags": [
+                    "权限管理"
+                ],
+                "summary": "权限列表",
+                "parameters": [
+                    {
+                        "description": "请求体",
+                        "name": "CasbinListRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/casbin_r.CasbinListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/casbin_r.CasbinListResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1_0/channels": {
             "get": {
                 "tags": [
@@ -2061,6 +2110,50 @@
                 },
                 "type": {
                     "type": "integer"
+                }
+            }
+        },
+        "casbin_r.CasbinCreateRequest": {
+            "type": "object",
+            "properties": {
+                "casbin_infos": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/casbin_r.CasbinInfo"
+                    }
+                },
+                "role_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "casbin_r.CasbinInfo": {
+            "type": "object",
+            "properties": {
+                "method": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                }
+            }
+        },
+        "casbin_r.CasbinListRequest": {
+            "type": "object",
+            "properties": {
+                "role_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "casbin_r.CasbinListResponse": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/casbin_r.CasbinInfo"
+                    }
                 }
             }
         },
