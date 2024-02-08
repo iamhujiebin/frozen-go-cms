@@ -6,6 +6,7 @@ import (
 	"frozen-go-cms/common/domain"
 	"frozen-go-cms/common/mycontext"
 	"frozen-go-cms/common/resource/config"
+	"frozen-go-cms/common/utils"
 	"frozen-go-cms/domain/model/user_m"
 	"frozen-go-cms/myerr/bizerr"
 	"frozen-go-cms/req"
@@ -32,18 +33,21 @@ type UserAuthResp struct {
 // @Router /v1_0/authorizations [post]
 func UserAuth(c *gin.Context) (*mycontext.MyContext, error) {
 	myCtx := mycontext.CreateMyContext(c.Keys)
+	model := domain.CreateModelContext(myCtx)
 	var param UserAuthReq
 	if err := c.ShouldBindJSON(&param); err != nil {
 		return myCtx, err
 	}
-	if len(param.Code) < 6 || len(param.Mobile) < 6 || param.Mobile[len(param.Mobile)-6:len(param.Mobile)] != param.Code {
-		return myCtx, bizerr.AuthFail
-	}
-	model := domain.CreateModelContext(myCtx)
 	user, err := user_m.GetUserOrCreate(model, param.Mobile)
 	if err != nil {
 		return myCtx, err
 	}
+	if utils.GetMD5Str(param.Code) != user.Pwd { // 优先判断密码
+		if len(param.Code) < 6 || len(param.Mobile) < 6 || param.Mobile[len(param.Mobile)-6:len(param.Mobile)] != param.Code {
+			return myCtx, bizerr.AuthFail
+		}
+	}
+
 	token, err := jwt.GenerateToken(user.ID, param.Mobile, config.GetConfigJWT().ISSUER_API)
 	if err != nil {
 		return myCtx, err

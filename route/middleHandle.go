@@ -129,3 +129,11 @@ func CasbinHandle(c *gin.Context) {
 		return
 	}
 }
+
+func SuperUser(c *gin.Context) {
+	userId, _ := c.Get(mycontext.USERID)
+	if cast.ToInt(userId) != 1 {
+		resp.ResponseBusiness(c, bizerr.AuthFail)
+		c.Abort()
+	}
+}

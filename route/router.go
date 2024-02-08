@@ -8,6 +8,7 @@ import (
 	"frozen-go-cms/route/casbin_r"
 	"frozen-go-cms/route/channel_r"
 	"frozen-go-cms/route/chatgpt_r"
+	"frozen-go-cms/route/mgr_r"
 	"frozen-go-cms/route/music_r"
 	"frozen-go-cms/route/product_price_r"
 	"frozen-go-cms/route/todo_r"
@@ -47,6 +48,11 @@ func InitRouter() *gin.Engine {
 	{
 		user.GET("profile", wrapper(user_r.UserProfile))
 		user.PUT("profile", wrapper(user_r.PutUserProfile))
+	}
+	mgr := v1.Group("mgr", JWTApiHandle, SuperUser)
+	{
+		mgr.GET("/user/list", wrapper(mgr_r.MgrUserList))
+		mgr.POST("/user/changePwd", wrapper(mgr_r.MgrUserChangePwd))
 	}
 	v1.GET("channels", wrapper(channel_r.Channels))
 

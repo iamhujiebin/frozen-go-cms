@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"frozen-go-cms/common/resource/config"
@@ -113,4 +114,10 @@ func Decimal(value float64) float64 {
 		return value
 	}
 	return newValue
+}
+
+func GetMD5Str(str string) string {
+	md5.New()
+	has := md5.Sum([]byte(str))
+	return fmt.Sprintf("%X", has)
 }
