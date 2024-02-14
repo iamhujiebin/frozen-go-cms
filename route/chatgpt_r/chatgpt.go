@@ -6,6 +6,7 @@ import (
 	"frozen-go-cms/_const/enum/ws_e"
 	"frozen-go-cms/common/domain"
 	"frozen-go-cms/common/mycontext"
+	"frozen-go-cms/common/mylogrus"
 	"frozen-go-cms/common/resource/mysql"
 	"frozen-go-cms/domain/model/chatgpt_m"
 	"frozen-go-cms/req"
@@ -178,6 +179,7 @@ func RealProcess(p ProcessReq) (string, error) {
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
+	mylogrus.MyLog.Infof("ChatGpt:req%v,resp:%v,err:%v", p, string(body), err)
 	if err != nil {
 		return "", err
 	}
